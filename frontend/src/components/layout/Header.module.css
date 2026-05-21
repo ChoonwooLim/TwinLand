@@ -255,9 +255,18 @@
 }
 .previewBtnLabel { font-size: 12px; }
 @media (max-width: 720px) {
-  .previewBtnLabel { display: none; }
+  /* 모바일에선 모바일 미리보기 버튼 자체가 무의미 (이미 모바일) → 완전 숨김 */
+  .previewBtn { display: none !important; }
   /* 모바일에선 역할 라벨 숨김 (Steven Lim 만 표시) */
   .userRole { display: none !important; }
   /* 사용자 이름도 좀 줄임 */
-  .userName { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .userName { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* actions gap 줄여서 좁은 공간에 맞춤 */
+  .actions { gap: 6px !important; }
+  /* 로그인 버튼 — 줄바꿈 방지 + 컴팩트 */
+  .loginCta {
+    white-space: nowrap;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
 }
