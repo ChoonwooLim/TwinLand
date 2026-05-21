@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LangToggle from './LangToggle.jsx';
+import MobilePreview from '../MobilePreview.jsx';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
 import { roleLabel } from '../../lib/format.js';
 import styles from './Header.module.css';
@@ -18,6 +19,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
+  const [mobilePreview, setMobilePreview] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -56,6 +58,15 @@ export default function Header() {
         </nav>
 
         <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.previewBtn}
+            onClick={() => setMobilePreview(true)}
+            aria-label="모바일 미리보기"
+            title="모바일 미리보기"
+          >
+            📱<span className={styles.previewBtnLabel}> 모바일</span>
+          </button>
           <LangToggle />
           {user ? (
             <div className={styles.userWrap}>
@@ -99,6 +110,8 @@ export default function Header() {
           </button>
         </div>
       </div>
+
+      <MobilePreview open={mobilePreview} onClose={() => setMobilePreview(false)} />
     </header>
   );
 }

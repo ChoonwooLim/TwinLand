@@ -235,3 +235,25 @@
 .loginCta:hover {
   background: rgba(107, 91, 255, 0.2);
 }
+
+.previewBtn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 7px 12px;
+  background: rgba(56, 217, 169, 0.12);
+  border: 1px solid rgba(56, 217, 169, 0.5);
+  color: #b6f1d9;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.previewBtn:hover {
+  background: rgba(56, 217, 169, 0.22);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.previewBtnLabel { font-size: 12px; }
+@media (max-width: 720px) {
+  .previewBtnLabel { display: none; }
+}
