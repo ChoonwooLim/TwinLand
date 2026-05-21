@@ -142,9 +142,19 @@
     </div>
   </header>
 
+  <!-- 모바일 FAB: 사이드바 토글 -->
+  <button id="mobile-sidebar-fab" class="mobile-fab" aria-label="필터·레이어 토글" title="필터·레이어">
+    <span class="mobile-fab-icon">📋</span>
+    <span class="mobile-fab-label">필터</span>
+  </button>
+
+  <!-- 모바일 사이드바 백드롭 -->
+  <div id="mobile-sidebar-backdrop" class="mobile-backdrop"></div>
+
   <!-- 메인 레이아웃 -->
   <main>
     <aside id="sidebar">
+      <button id="mobile-sidebar-close" class="mobile-sidebar-close" aria-label="닫기">✕</button>
       <div class="sidebar-section">
         <h3>필터</h3>
         <div class="filter-group">

@@ -40,3 +40,11 @@
 }
 .empty p { margin: 0 0 18px; font-size: 15px; }
 .error { background: #fee; border-left: 4px solid #a61b1b; color: #a61b1b; padding: 14px 18px; border-radius: 6px; margin-bottom: 18px; }
+
+@media (max-width: 720px) {
+  .page { padding: 32px 14px 60px; }
+  .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .header h1 { font-size: 24px; }
+  .grid { grid-template-columns: 1fr; gap: 12px; }
+  .card { padding: 18px 16px 14px; }
+}

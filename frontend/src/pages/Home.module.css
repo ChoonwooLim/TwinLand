@@ -89,3 +89,15 @@
 }
 .cta h2 { font-size: clamp(26px, 4vw, 38px); margin: 0 0 14px; color: #fff; }
 .cta p { font-size: 16px; color: #cfe2f5; margin: 0 0 32px; }
+
+@media (max-width: 720px) {
+  .hero { padding: 80px 16px 60px; }
+  .lead { font-size: 16px; }
+  .heroCtas { gap: 10px; }
+  .btnPrimary, .btnSecondary { padding: 12px 22px; font-size: 14px; width: 100%; max-width: 280px; }
+  .heroStats { gap: 24px; padding-top: 24px; }
+  .statValue { font-size: 22px; }
+  .features, .workflow, .cta { padding: 60px 16px; }
+  .card { padding: 22px 18px; }
+  .steps li { padding: 24px 18px; }
+}

@@ -46,10 +46,40 @@ let resolvedParcels = []; // 성공한 필지만
 let currentApiKey = '';   // WMS 오버레이 토글용 (startMap 시 세팅)
 const wmsLayers = {};     // { layerKey: L.tileLayer.wms }
 
+// ==================== 모바일 사이드바 토글 ====================
+function setupMobileSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const fab = document.getElementById('mobile-sidebar-fab');
+  const backdrop = document.getElementById('mobile-sidebar-backdrop');
+  const closeBtn = document.getElementById('mobile-sidebar-close');
+  if (!sidebar || !fab) return;
+
+  const open = () => {
+    sidebar.classList.add('open');
+    backdrop?.classList.add('open');
+    fab.classList.add('hidden');
+  };
+  const close = () => {
+    sidebar.classList.remove('open');
+    backdrop?.classList.remove('open');
+    fab.classList.remove('hidden');
+  };
+
+  fab.addEventListener('click', open);
+  backdrop?.addEventListener('click', close);
+  closeBtn?.addEventListener('click', close);
+
+  // ESC 로도 닫기
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar.classList.contains('open')) close();
+  });
+}
+
 // ==================== 초기화 ====================
 function init() {
   setupKeyModal();
   updateProjectHeader();
+  setupMobileSidebar();
   buildParcelList();
   setupFilters();
   setupCollapsibles();

@@ -1491,3 +1491,168 @@ body:not(.mode-3d) .style-row-3d-only {
   border-color: var(--border-medium);
 }
 .project-actions button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ==================== MOBILE FAB & 사이드바 close 버튼 ==================== */
+.mobile-fab {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: linear-gradient(135deg, #1f5f8b, #38d9a9);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(31, 95, 139, 0.45), 0 0 0 3px rgba(56, 217, 169, 0.12);
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.18s ease;
+}
+.mobile-fab:hover { transform: translateY(-2px); }
+.mobile-fab:active { transform: translateY(0); }
+.mobile-fab-icon { font-size: 18px; line-height: 1; }
+.mobile-fab.hidden { display: none !important; }
+
+.mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 10, 20, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.mobile-backdrop.open { opacity: 1; }
+
+.mobile-sidebar-close {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: rgba(76, 201, 158, 0.18);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 5;
+}
+
+/* ==================== MOBILE 반응형 (≤ 768px) ==================== */
+@media (max-width: 768px) {
+  body { overflow: hidden; }   /* 바디 스크롤 차단, 사이드바 자체 스크롤 */
+
+  /* 헤더 컴팩트 */
+  header {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+    flex-wrap: wrap;
+  }
+  .header-left { min-width: 0; flex: 1; }
+  .title-row { gap: 6px !important; }
+  header h1 {
+    font-size: 14px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  header h1 .project-suffix { display: none; }
+  .subtitle { display: none; }   /* 모바일에선 부제 숨김 */
+  .landinfo-btn { padding: 4px 10px !important; font-size: 12px !important; }
+
+  /* 헤더 우측 — 베이스맵 아이콘만 + 액션 일부 숨김 */
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .view-toggle .mode-btn { padding: 4px 8px !important; font-size: 11px !important; }
+  .basemap-toggle { gap: 2px !important; }
+  .basemap-toggle .basemap-btn {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    /* 아이콘만 보이게 — 텍스트는 처음 글자(이모지)만 유지하도록 자르기 어려움
+       → 글자크기·padding 줄여서 한 줄에 다 들어가게 */
+  }
+  .progress { display: none; }   /* 모바일 진행률 숨김 (필요 시 토스트로 대체) */
+  #open-editor span, #reset-key span { display: none; }
+  #open-projects {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 메인 — 사이드바는 bottom sheet 로 */
+  main { position: relative; }
+
+  #sidebar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    max-height: 70vh;
+    min-height: 60vh;
+    border-right: none;
+    border-top: 1px solid var(--border-soft);
+    border-radius: 18px 18px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0.0, 1);
+    z-index: 999;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+    padding-top: 28px !important;
+  }
+  #sidebar.open { transform: translateY(0); }
+
+  /* drag handle 표시 */
+  #sidebar::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 42px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .mobile-sidebar-close { display: flex !important; align-items: center; justify-content: center; }
+
+  /* FAB·백드롭 모바일 활성 */
+  .mobile-fab { display: inline-flex; }
+  .mobile-backdrop { display: block; pointer-events: none; }
+  .mobile-backdrop.open { pointer-events: auto; }
+
+  /* 지도 — 풀 사이즈 */
+  #map { width: 100%; height: 100%; }
+  #cesium-container { width: 100%; height: 100%; }
+
+  /* 사이드바 내부 — 텍스트·간격 조금 줄임 */
+  .sidebar-section { margin-bottom: 14px; }
+  .sidebar-section h3 { font-size: 11px; }
+
+  /* parcel list 더 컴팩트 */
+  .parcel-item { padding: 8px 10px !important; }
+}
+
+/* ==================== 매우 작은 화면 (≤ 380px) ==================== */
+@media (max-width: 380px) {
+  header h1 { font-size: 13px !important; }
+  .basemap-toggle .basemap-btn { padding: 3px 6px !important; font-size: 10px !important; }
+  .view-toggle .mode-btn { padding: 3px 7px !important; font-size: 10px !important; }
+  .mobile-fab { padding: 11px 14px; font-size: 13px; }
+  .mobile-fab-label { display: none; }
+}
