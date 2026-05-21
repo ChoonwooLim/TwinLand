@@ -23,14 +23,8 @@ _env = Environment(
 
 
 TEMPLATE_SUBJECTS = {
-    "register_welcome": "[JooJooLand] 가입을 환영합니다",
-    "upgrade_requested": "[JooJooLand] 투자자 등업 요청이 접수되었습니다",
-    "upgrade_approved": "[JooJooLand] 투자자 등업이 승인되었습니다",
-    "upgrade_rejected": "[JooJooLand] 투자자 등업 요청 결과 안내",
-    "password_reset": "[JooJooLand] 비밀번호 재설정 안내",
-    "lead_received": "[JooJooLand] 문의를 받았습니다",
-    "admin_new_upgrade": "[JooJooLand Admin] 새 등업 요청",
-    "admin_new_lead": "[JooJooLand Admin] 새 리드 등록",
+    "register_welcome": "[TwinLand] 가입을 환영합니다",
+    "password_reset": "[TwinLand] 비밀번호 재설정 안내",
 }
 
 

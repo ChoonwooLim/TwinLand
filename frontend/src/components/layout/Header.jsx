@@ -8,14 +8,9 @@ import styles from './Header.module.css';
 
 const NAV_ITEMS = [
   { to: '/', key: 'nav.home' },
-  { to: '/vision', key: 'nav.vision' },
-  { to: '/themepark', key: 'nav.themepark' },
-  { to: '/clone', key: 'nav.clone' },
   { to: '/map', key: 'nav.map' },
-  { to: '/demo', key: 'nav.demo' },
-  { to: '/investment', key: 'nav.investment' },
-  { to: '/dataroom', key: 'nav.dataroom' },
-  { to: '/contact', key: 'nav.contact' },
+  { to: '/reports/new', key: 'nav.newReport' },
+  { to: '/reports', key: 'nav.myReports' },
 ];
 
 export default function Header() {
@@ -77,19 +72,12 @@ export default function Header() {
               </button>
               {userMenu && (
                 <div className={styles.userDropdown} role="menu">
+                  <Link to="/reports" className={styles.userMenuItem} onClick={() => setUserMenu(false)}>
+                    내 보고서
+                  </Link>
                   {(user.role === 'admin' || user.role === 'superadmin') && (
                     <Link to="/admin" className={styles.userMenuItem} onClick={() => setUserMenu(false)}>
                       어드민
-                    </Link>
-                  )}
-                  {user.role === 'guest' && (
-                    <Link to="/upgrade" className={styles.userMenuItem} onClick={() => setUserMenu(false)}>
-                      투자자 등업
-                    </Link>
-                  )}
-                  {(user.role === 'investor' || user.role === 'admin' || user.role === 'superadmin') && (
-                    <Link to="/dataroom" className={styles.userMenuItem} onClick={() => setUserMenu(false)}>
-                      DataRoom
                     </Link>
                   )}
                   <button className={styles.userMenuItem} onClick={onLogout}>로그아웃</button>

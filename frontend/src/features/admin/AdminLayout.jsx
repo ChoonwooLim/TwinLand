@@ -5,9 +5,8 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
-  IconLayoutDashboard, IconUsers, IconUserCheck, IconAddressBook, IconFolder,
-  IconFileText, IconMapPin, IconBrain, IconMail, IconDog, IconPuzzle,
-  IconPlug, IconBook, IconActivity, IconLogout, IconSettings,
+  IconLayoutDashboard, IconUsers, IconMapPin, IconBrain, IconMail,
+  IconPuzzle, IconPlug, IconBook, IconActivity, IconLogout, IconSettings,
 } from '@tabler/icons-react';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { api } from '../../lib/api.js';
@@ -16,14 +15,9 @@ import { roleLabel } from '../../lib/format.js';
 const MENU = [
   { to: '/admin', label: '대시보드', icon: IconLayoutDashboard, end: true },
   { to: '/admin/users', label: '사용자 관리', icon: IconUsers },
-  { to: '/admin/upgrades', label: '등업 요청', icon: IconUserCheck, badge: 'pending' },
-  { to: '/admin/leads', label: '투자자 리드', icon: IconAddressBook },
-  { to: '/admin/dataroom', label: 'DataRoom 문서', icon: IconFolder },
-  { to: '/admin/content', label: '콘텐츠 CMS', icon: IconFileText },
-  { to: '/admin/parcels', label: '부지 관리', icon: IconMapPin },
+  { to: '/admin/parcels', label: '필지 관리', icon: IconMapPin },
   { to: '/admin/ai-logs', label: 'AI 로그', icon: IconBrain },
   { to: '/admin/emails', label: '이메일 이력', icon: IconMail },
-  { to: '/admin/clones', label: 'Pet / Clone', icon: IconDog },
   { to: '/admin/skills', label: 'AI 스킬', icon: IconPuzzle },
   { to: '/admin/plugins', label: '플러그인', icon: IconPlug },
   { to: '/admin/docs', label: '프로젝트 문서', icon: IconBook },
@@ -38,16 +32,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const r = await api.get('/api/upgrade/admin/list', { params: { status_filter: 'pending' } });
-        if (!cancelled) setPending(r.data.count || 0);
-      } catch {}
-    };
-    tick();
-    const t = setInterval(tick, 60000);
-    return () => { cancelled = true; clearInterval(t); };
+    // 등업 요청 폴링 제거 (TwinLand 는 reports 기반)
   }, []);
 
   const onLogout = async () => {

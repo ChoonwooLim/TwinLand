@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }}</title>
+<style>
+:root{
+  --navy:#14233a; --blue:#1f5f8b; --bg:#f3f6f8; --line:#dfe7ef; --text:#1d2733;
+  --muted:#657181; --warn:#a44e00; --risk:#a61b1b; --ok:#0f7a4c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',Arial,sans-serif;
+  line-height:1.62}
+.container{max-width:1180px;margin:0 auto;background:#fff;box-shadow:0 12px 40px rgba(20,35,58,.10)}
+.hero{padding:56px 58px;color:#fff;background:linear-gradient(135deg,#0f1e34 0%,#14554e 100%)}
+.hero .eyebrow{font-size:13px;letter-spacing:.18em;color:#a8d1ff;text-transform:uppercase}
+.hero h1{font-size:34px;margin:14px 0 8px;font-weight:700;letter-spacing:-.01em}
+.hero .meta{color:#cfe2f5;font-size:14px;margin-top:10px}
+.hero .pill{display:inline-block;background:rgba(255,255,255,.16);padding:4px 12px;border-radius:999px;
+  font-size:12px;margin-right:8px;border:1px solid rgba(255,255,255,.22)}
+.section{padding:42px 58px;border-bottom:1px solid var(--line)}
+.section:last-child{border-bottom:none}
+.section h2{margin:0 0 18px;font-size:22px;color:var(--navy);letter-spacing:-.005em;
+  padding-bottom:10px;border-bottom:2px solid var(--blue);display:inline-block}
+.section h3{margin:22px 0 10px;font-size:16px;color:var(--navy)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.callout{padding:18px 20px;border-radius:10px;border:1px solid var(--line);background:#fbfdff}
+.callout.ok{border-left:4px solid var(--ok)}
+.callout.warn{border-left:4px solid var(--warn)}
+.callout ul{margin:6px 0 0;padding-left:20px}
+.callout li{margin:4px 0}
+table.report{width:100%;border-collapse:collapse;font-size:14px}
+table.report th,table.report td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+table.report th{background:#eef3f8;color:var(--navy);font-weight:600;width:160px}
+.muted{color:var(--muted);font-size:13px}
+.kpi-row{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 16px}
+.kpi{flex:1 1 200px;background:#f7fafd;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.kpi .value{font-size:22px;font-weight:700;color:var(--navy);margin-top:4px}
+.kpi .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.parcel-table{margin-top:8px}
+.parcel-table th{background:#eef3f8;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy)}
+.parcel-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.parcel-table tr.highlight{background:#fff7e6}
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.checklist h3{margin-top:0}
+.checklist ul{margin:8px 0;padding-left:18px}
+.checklist li{margin:6px 0}
+.attachments-table td{font-size:13px}
+.foot{padding:30px 58px;text-align:center;font-size:12px;color:var(--muted)}
+.foot a{color:var(--blue)}
+.banner-fallback{background:#fff4e6;border-left:4px solid var(--warn);padding:10px 14px;margin:0 0 18px;
+  font-size:13px;color:var(--warn)}
+@media print{.section{padding:32px 40px}.hero{padding:40px 40px}}
+</style>
+</head><body>
+<div class="container">
+
+  {# ── 헤더 ── #}
+  <header class="hero">
+    <div class="eyebrow">TwinLand · 종합 토지분석 보고서</div>
+    <h1>{{ title }}</h1>
+    {% if ai.summary %}<div class="meta" style="font-size:16px;margin-top:14px">{{ ai.summary }}</div>{% endif %}
+    <div class="meta">
+      <span class="pill">필지 {{ summary.parcel_count }}건</span>
+      <span class="pill">총면적 {{ summary.total_area_m2|fmt_int }} m²</span>
+      <span class="pill">{{ summary.total_area_ha }} ha</span>
+      <span class="pill">{{ summary.total_area_pyeong|fmt_int }} 평</span>
+      <span class="pill">생성 {{ generated_at }}</span>
+    </div>
+  </header>
+
+  {% if ai._fallback or ai._error %}
+  <div style="padding:20px 58px 0">
+    <div class="banner-fallback">
+      ⚠ AI 합성 미완 (fallback). 사유: {{ ai._error or 'OpenClaw 게이트웨이 응답 없음' }}.
+      데이터 기반 자동 분석으로 대체. OpenClaw LAN 활성 후 재생성 가능.
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── §1 핵심 결론 ── #}
+  <section class="section">
+    <h2>1. 핵심 결론</h2>
+    <div class="grid2">
+      <div class="callout ok">
+        <h3 style="margin-top:0;color:var(--ok)">강점</h3>
+        <ul>{% for s in ai.strengths or [] %}<li>{{ s }}</li>{% endfor %}</ul>
+      </div>
+      <div class="callout warn">
+        <h3 style="margin-top:0;color:var(--warn)">제약</h3>
+        <ul>{% for c in ai.constraints or [] %}<li>{{ c }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+    {% if ai.recommendations %}
+    <div class="callout" style="margin-top:14px">
+      <h3 style="margin-top:0;color:var(--blue)">권장 방향</h3>
+      <ul>{% for r in ai.recommendations %}<li>{{ r }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+  </section>
+
+  {# ── §2 필지별 기본 현황 ── #}
+  <section class="section">
+    <h2>2. 필지별 기본 현황</h2>
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">총 필지</div><div class="value">{{ summary.parcel_count }}건</div></div>
+      <div class="kpi"><div class="label">총 면적</div><div class="value">{{ summary.total_area_m2|fmt_int }} m²</div><div class="sub">≈ {{ summary.total_area_pyeong|fmt_int }} 평</div></div>
+      <div class="kpi"><div class="label">총 면적 (ha)</div><div class="value">{{ summary.total_area_ha }}</div></div>
+      {% for cat, m2 in summary.area_by_category_m2.items() %}
+      <div class="kpi"><div class="label">{{ cat }}</div><div class="value">{{ m2|fmt_int }} m²</div></div>
+      {% endfor %}
+    </div>
+    <table class="report parcel-table">
+      <thead><tr>
+        <th>No</th><th>지번</th><th>지목</th><th>면적(m²)</th><th>면적(평)</th><th>소유자</th><th>비고</th>
+      </tr></thead>
+      <tbody>
+        {% for p in parcels %}
+        <tr{% if p.owner and p.owner != '—' %} class="highlight"{% endif %}>
+          <td>{{ p.no or loop.index }}</td>
+          <td>{{ p.location }} {{ p.lot }}</td>
+          <td>{{ p.category }}</td>
+          <td class="num">{{ p.area_m2|fmt_int }}</td>
+          <td class="num">{{ p.area_pyeong|fmt_int }}</td>
+          <td>{{ p.owner }}</td>
+          <td class="muted">{{ p.memo }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  {# ── §3 위치 + 2D/3D 지형 분석 ── #}
+  <section class="section">
+    <h2>3. 위치 및 2D/3D 지형 분석</h2>
+    <p class="muted">VWorld 위성지도·Cesium 3D 뷰어에서 필지 경계와 인접 부지를 확인할 수 있습니다.
+       지도 페이지에서 본 보고서의 필지를 선택해 실시간 확인하세요.</p>
+    {% set has_centroid = parcels and parcels[0].centroid %}
+    {% if has_centroid %}
+    <p class="muted">대표 좌표 (첫 필지 centroid): {{ parcels[0].centroid[1] }} N, {{ parcels[0].centroid[0] }} E</p>
+    {% endif %}
+  </section>
+
+  {# ── §4 경사·지형·재해 리스크 ── #}
+  <section class="section">
+    <h2>4. 경사·지형·재해 리스크</h2>
+    {% set has_slope = parcels|selectattr('slope_stats')|list %}
+    {% if has_slope %}
+    <table class="report">
+      <thead><tr><th>지번</th><th>최대 경사</th><th>평균 경사</th><th>25° 초과율</th><th>산사태 등급</th></tr></thead>
+      <tbody>
+        {% for p in has_slope %}
+        <tr>
+          <td>{{ p.lot }}</td>
+          <td class="num">{{ p.slope_stats.max_deg if p.slope_stats and p.slope_stats.max_deg is not none else '—' }}°</td>
+          <td class="num">{{ p.slope_stats.mean_deg if p.slope_stats and p.slope_stats.mean_deg is not none else '—' }}°</td>
+          <td class="num">{{ p.slope_stats.over25_pct if p.slope_stats and p.slope_stats.over25_pct is not none else '—' }}%</td>
+          <td class="num">{{ p.slope_stats.landslide_class if p.slope_stats and p.slope_stats.landslide_class else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">경사 zonal stats 미수집. 산림청 SHP 와 DEM 래스터 데이터 적재 후 자동 채워집니다 (docs/forest-shp-ingest.md 참조).</p>
+    {% endif %}
+  </section>
+
+  {# ── §5 규제·인허가 ── #}
+  <section class="section">
+    <h2>5. 규제 및 인허가 관점</h2>
+    {% if ai.section_prose and ai.section_prose.regulation %}
+    <p>{{ ai.section_prose.regulation }}</p>
+    {% endif %}
+    {% set has_landuse = parcels|selectattr('landuse')|list %}
+    {% if has_landuse %}
+    <table class="report" style="margin-top:10px">
+      <thead><tr><th>지번</th><th>용도지역</th><th>중첩 규제</th></tr></thead>
+      <tbody>
+        {% for p in has_landuse %}
+        <tr>
+          <td>{{ p.lot }}</td>
+          <td>{{ p.landuse.zoning if p.landuse and p.landuse.zoning else '—' }}</td>
+          <td>{{ (p.landuse.designations|join(', ')) if p.landuse and p.landuse.designations else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </section>
+
+  {# ── §6 임업환경·활용 방향 ── #}
+  <section class="section">
+    <h2>6. 임업환경 및 활용 방향</h2>
+    {% if ai.section_prose and ai.section_prose.forestry %}
+    <p>{{ ai.section_prose.forestry }}</p>
+    {% endif %}
+  </section>
+
+  {# ── §7 업로드 파일 반영 ── #}
+  <section class="section">
+    <h2>7. 업로드 파일 반영 내역</h2>
+    {% if attachments %}
+    <table class="report attachments-table">
+      <thead><tr><th>파일</th><th>유형</th></tr></thead>
+      <tbody>
+        {% for a in attachments %}
+        <tr><td>{{ a.name }}</td><td>{{ a.type }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">업로드된 첨부 PDF 없음 — 데이터만으로 작성된 보고서.</p>
+    {% endif %}
+  </section>
+
+  {# ── §8 PDF 미리보기 (있을 때만) ── #}
+  {% if attachments|selectattr('thumbnail')|list %}
+  <section class="section">
+    <h2>8. PDF 원문 첫 페이지 미리보기</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+      {% for a in attachments if a.thumbnail %}
+      <figure style="margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden">
+        <img src="{{ a.thumbnail }}" alt="{{ a.name }}" style="width:100%;display:block">
+        <figcaption class="muted" style="padding:8px 10px;font-size:12px">{{ a.name }}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# ── §9 최종 체크리스트 ── #}
+  <section class="section">
+    <h2>9. 최종 체크리스트</h2>
+    <div class="checklist">
+      <div>
+        <h3>권리·경계</h3>
+        <ul>
+          {% for item in (ai.checklist.rights_boundary if ai.checklist else []) %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h3>인허가·기술</h3>
+        <ul>
+          {% for item in (ai.checklist.permits_technical if ai.checklist else []) %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    TwinLand · Korean GIS · 본 보고서는 자동 합성된 참고 자료입니다. 실제 의사결정 전 현장 측량과 전문가 검토를 권합니다.
+  </footer>
+</div>
+</body></html>

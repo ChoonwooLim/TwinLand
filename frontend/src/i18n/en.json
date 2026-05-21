@@ -1,6 +1,12 @@
 {
   "nav": {
     "home": "Home",
+    "map": "Map",
+    "newReport": "New Report",
+    "myReports": "My Reports"
+  },
+  "_nav_old": {
+    "home": "Home",
     "vision": "Vision",
     "themepark": "Theme Park",
     "clone": "Digital Clone",

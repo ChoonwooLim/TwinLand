@@ -1,14 +1,9 @@
 {
   "nav": {
     "home": "홈",
-    "vision": "비전",
-    "themepark": "테마파크",
-    "clone": "디지털 클론",
-    "map": "사업예정부지",
-    "demo": "체험",
-    "investment": "투자",
-    "dataroom": "데이터룸",
-    "contact": "문의"
+    "map": "지도",
+    "newReport": "보고서 생성",
+    "myReports": "내 보고서"
   },
   "cta": {
     "primary": "Pet Twinverse 체험하기",

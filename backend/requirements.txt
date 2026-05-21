@@ -21,3 +21,8 @@ geopandas==1.0.1  # pyogrio.read_dataframe 이 내부적으로 요구
 # 산사태위험 래스터(GeoTIFF) zonal stats 용 — 시스템 libexpat 필요
 rasterio==1.3.11
 
+# Reports — PDF 텍스트 추출 + HTML → PDF 변환
+pypdf==5.1.0
+weasyprint==63.1
+# WeasyPrint 런타임 의존: libpango-1.0-0 libcairo2 (Dockerfile 에 추가)
+

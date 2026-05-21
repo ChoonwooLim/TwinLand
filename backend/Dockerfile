@@ -23,6 +23,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential libpq-dev curl \
     libexpat1 libgdal-dev libgeos-dev libproj-dev \
+    # WeasyPrint (HTML → PDF) 의존성
+    libpango-1.0-0 libpangoft2-1.0-0 libcairo2 fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt ./

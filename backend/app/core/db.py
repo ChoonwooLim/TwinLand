@@ -8,19 +8,16 @@ engine = create_engine(settings.database_url, echo=False, connect_args=connect_a
 
 
 def init_db() -> None:
+    """모델 모듈 import 로 SQLModel 메타데이터 등록 → 테이블 생성."""
     from app.models import (  # noqa: F401
         user,
-        pet,
-        clone,
         parcel,
-        dataroom_doc,
-        upgrade_request,
-        contact_lead,
-        content_block,
         ai_chat_log,
         email_log,
         download_log,
         forest,
+        twinland_report,
+        twinland_report_attachment,
     )
     SQLModel.metadata.create_all(engine)
 

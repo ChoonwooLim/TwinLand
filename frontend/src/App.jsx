@@ -5,32 +5,23 @@ import Footer from './components/layout/Footer.jsx';
 import ProtectedRoute from './features/auth/ProtectedRoute.jsx';
 
 const Home = lazy(() => import('./pages/Home.jsx'));
-const Vision = lazy(() => import('./pages/Vision.jsx'));
-const ThemePark = lazy(() => import('./pages/ThemePark.jsx'));
-const DigitalClone = lazy(() => import('./pages/DigitalClone.jsx'));
 const MapPage = lazy(() => import('./pages/Map.jsx'));
-const Demo = lazy(() => import('./pages/Demo.jsx'));
-const Investment = lazy(() => import('./pages/Investment.jsx'));
-const DataRoom = lazy(() => import('./pages/DataRoom.jsx'));
-const Contact = lazy(() => import('./pages/Contact.jsx'));
+
+const ReportBuilder = lazy(() => import('./pages/ReportBuilder.jsx'));
+const ReportViewer = lazy(() => import('./pages/ReportViewer.jsx'));
+const ReportsList = lazy(() => import('./pages/ReportsList.jsx'));
 
 const Login = lazy(() => import('./pages/Login.jsx'));
 const Register = lazy(() => import('./pages/Register.jsx'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'));
-const Upgrade = lazy(() => import('./pages/Upgrade.jsx'));
 
 const AdminLayout = lazy(() => import('./features/admin/AdminLayout.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard.jsx'));
 const AdminUsers = lazy(() => import('./pages/admin/Users.jsx'));
-const AdminUpgrades = lazy(() => import('./pages/admin/Upgrades.jsx'));
-const AdminLeads = lazy(() => import('./pages/admin/Leads.jsx'));
-const AdminDataRoom = lazy(() => import('./pages/admin/DataRoom.jsx'));
-const AdminContent = lazy(() => import('./pages/admin/Content.jsx'));
 const AdminParcels = lazy(() => import('./pages/admin/Parcels.jsx'));
 const AdminAILogs = lazy(() => import('./pages/admin/AILogs.jsx'));
 const AdminEmails = lazy(() => import('./pages/admin/Emails.jsx'));
-const AdminClones = lazy(() => import('./pages/admin/Clones.jsx'));
 const AdminSkills = lazy(() => import('./pages/admin/Skills.jsx'));
 const AdminPlugins = lazy(() => import('./pages/admin/Plugins.jsx'));
 const AdminDocs = lazy(() => import('./pages/admin/Docs.jsx'));
@@ -60,50 +51,50 @@ export default function App() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<PublicShell><Home /></PublicShell>} />
-        <Route path="/vision" element={<PublicShell><Vision /></PublicShell>} />
-        <Route path="/themepark" element={<PublicShell><ThemePark /></PublicShell>} />
-        <Route path="/clone" element={<PublicShell><DigitalClone /></PublicShell>} />
         <Route path="/map" element={<PublicShell hideFooter flush><MapPage /></PublicShell>} />
-        <Route path="/demo" element={<PublicShell><Demo /></PublicShell>} />
-        <Route path="/investment" element={<PublicShell><Investment /></PublicShell>} />
-        <Route path="/contact" element={<PublicShell><Contact /></PublicShell>} />
 
+        {/* 보고서 (로그인 필요) */}
         <Route
-          path="/dataroom"
+          path="/reports/new"
           element={
-            <ProtectedRoute requiredRole="investor">
-              <PublicShell><DataRoom /></PublicShell>
+            <ProtectedRoute requiredRole="guest">
+              <PublicShell><ReportBuilder /></PublicShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute requiredRole="guest">
+              <PublicShell><ReportsList /></PublicShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/:id"
+          element={
+            <ProtectedRoute requiredRole="guest">
+              <PublicShell hideFooter><ReportViewer /></PublicShell>
             </ProtectedRoute>
           }
         />
 
+        {/* 인증 */}
         <Route path="/login" element={<PublicShell><Login /></PublicShell>} />
         <Route path="/register" element={<PublicShell><Register /></PublicShell>} />
         <Route path="/forgot-password" element={<PublicShell><ForgotPassword /></PublicShell>} />
         <Route path="/reset-password" element={<PublicShell><ResetPassword /></PublicShell>} />
-        <Route
-          path="/upgrade"
-          element={
-            <ProtectedRoute requiredRole="guest">
-              <PublicShell><Upgrade /></PublicShell>
-            </ProtectedRoute>
-          }
-        />
 
+        {/* 어드민 */}
         <Route
           path="/admin"
           element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}
         >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
-          <Route path="upgrades" element={<AdminUpgrades />} />
-          <Route path="leads" element={<AdminLeads />} />
-          <Route path="dataroom" element={<AdminDataRoom />} />
-          <Route path="content" element={<AdminContent />} />
           <Route path="parcels" element={<AdminParcels />} />
           <Route path="ai-logs" element={<AdminAILogs />} />
           <Route path="emails" element={<AdminEmails />} />
-          <Route path="clones" element={<AdminClones />} />
           <Route path="skills" element={<AdminSkills />} />
           <Route path="plugins" element={<AdminPlugins />} />
           <Route path="docs" element={<AdminDocs />} />
