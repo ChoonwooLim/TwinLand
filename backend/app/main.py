@@ -97,14 +97,26 @@ app.add_middleware(
 
 @app.middleware("http")
 async def cache_control(request: Request, call_next):
+    """모바일 (특히 iOS Safari / 인앱 웹뷰) 캐시 공격성 회피.
+
+    - /api/*           → no-store (절대 캐시 X)
+    - /assets/*-HASH.* → 1년 immutable (해시 변경 시 자동 무효)
+    - 그 외 (HTML·legacy-map .js·.css·이미지) → no-cache 강제 (revalidate)
+      mobile Safari 가 must-revalidate 만으로는 fresh fetch 안 할 때가 있어
+      no-cache·no-store·max-age=0 + Pragma + Expires 3중 처리.
+    """
     response: Response = await call_next(request)
     path = request.url.path
     if path.startswith("/api/"):
-        response.headers["Cache-Control"] = "no-store"
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
     elif HASHED_ASSET_RE.search(path):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     else:
-        response.headers["Cache-Control"] = "private, max-age=0, must-revalidate"
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
     return response
 
 
