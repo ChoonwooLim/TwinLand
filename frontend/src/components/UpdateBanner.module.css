@@ -1,0 +1,47 @@
+.banner {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #1f5f8b, #38d9a9);
+  color: #fff;
+  padding: 10px 16px 10px 14px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: 0 12px 32px rgba(31, 95, 139, 0.55);
+  animation: slideDown 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: calc(100vw - 24px);
+}
+.icon { font-size: 16px; line-height: 1; animation: spin 1.4s linear infinite; }
+.text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(255, 255, 255, 0.26); }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .banner { font-size: 12px; padding: 9px 12px; gap: 8px; top: 8px; }
+  .text { font-size: 12px; }
+  .btn { padding: 4px 10px; font-size: 11px; }
+}
