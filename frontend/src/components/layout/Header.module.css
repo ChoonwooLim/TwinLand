@@ -257,6 +257,8 @@
 @media (max-width: 720px) {
   /* 모바일에선 모바일 미리보기 버튼 자체가 무의미 (이미 모바일) → 완전 숨김 */
   .previewBtn { display: none !important; }
+  /* KR/EN 언어 토글 — 모바일에선 공간 부족 + ☰ 햄버거 메뉴 가림 → 숨김 */
+  .langToggleWrap { display: none !important; }
   /* 모바일에선 역할 라벨 숨김 (Steven Lim 만 표시) */
   .userRole { display: none !important; }
   /* 사용자 이름도 좀 줄임 */

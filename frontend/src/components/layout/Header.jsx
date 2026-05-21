@@ -85,7 +85,7 @@ export default function Header() {
               >
                 📱<span className={styles.previewBtnLabel}> 모바일</span>
               </button>
-              <LangToggle />
+              <span className={styles.langToggleWrap}><LangToggle /></span>
             </>
           )}
           {user ? (
