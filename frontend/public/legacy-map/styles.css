@@ -986,14 +986,70 @@ body:not(.mode-3d) .style-row-3d-only {
   background: var(--surface-0);
   backdrop-filter: blur(10px) saturate(1.2);
   -webkit-backdrop-filter: blur(10px) saturate(1.2);
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 12px 16px 12px 14px;
+  border-radius: 10px;
   border: 1px solid var(--border-soft);
   box-shadow: 0 4px 16px rgba(0,0,0,0.5);
   z-index: 500;
   font-size: 12px;
   color: var(--text-primary);
+  animation: legendFadeIn 0.18s ease;
 }
+#legend[hidden] { display: none !important; }
+@keyframes legendFadeIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 범례 토글 버튼 (지도 우하단) */
+.legend-toggle {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 499;
+  background: var(--surface-0);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.legend-toggle:hover {
+  background: rgba(76, 201, 158, 0.18);
+  transform: translateY(-1px);
+}
+.legend-toggle[aria-pressed="true"] { display: none; }   /* 범례 열려있을 땐 버튼 숨김 */
+
+/* 범례 닫기 (✕) */
+.legend-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 12px;
+  padding: 0;
+  line-height: 1;
+}
+.legend-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+#legend { padding-top: 30px; }  /* close 버튼 자리 확보 */
 
 .legend-item {
   display: flex;
@@ -1655,4 +1711,25 @@ body:not(.mode-3d) .style-row-3d-only {
   .view-toggle .mode-btn { padding: 3px 7px !important; font-size: 10px !important; }
   .mobile-fab { padding: 11px 14px; font-size: 13px; }
   .mobile-fab-label { display: none; }
+}
+
+/* 모바일에서 범례 토글 + 범례 위치 보정 */
+@media (max-width: 768px) {
+  .legend-toggle {
+    bottom: 18px;
+    right: 14px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  #legend {
+    bottom: 18px;
+    right: 14px;
+    max-width: calc(100vw - 28px);
+    padding: 28px 14px 12px 12px;
+  }
+  /* 매우 작은 화면에선 라벨 숨김 (이모지만) */
+}
+@media (max-width: 380px) {
+  .legend-toggle-label { display: none; }
+  .legend-toggle { padding: 9px 11px; font-size: 14px; }
 }

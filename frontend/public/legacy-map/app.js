@@ -46,6 +46,45 @@ let resolvedParcels = []; // 성공한 필지만
 let currentApiKey = '';   // WMS 오버레이 토글용 (startMap 시 세팅)
 const wmsLayers = {};     // { layerKey: L.tileLayer.wms }
 
+// ==================== 범례 토글 ====================
+function setupLegendToggle() {
+  const btn = document.getElementById('legend-toggle');
+  const legend = document.getElementById('legend');
+  const close = document.getElementById('legend-close');
+  if (!btn || !legend) return;
+
+  const STORAGE_KEY = 'twinland_legend_open';
+  const setState = (open, persist = true) => {
+    if (open) {
+      legend.hidden = false;
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      legend.hidden = true;
+      btn.setAttribute('aria-pressed', 'false');
+    }
+    if (persist) {
+      try { localStorage.setItem(STORAGE_KEY, open ? '1' : '0'); } catch {}
+    }
+  };
+
+  // 초기 상태 복원 (없으면 닫힘)
+  let initial = false;
+  try { initial = localStorage.getItem(STORAGE_KEY) === '1'; } catch {}
+  setState(initial, false);
+
+  btn.addEventListener('click', () => setState(true));
+  close?.addEventListener('click', () => setState(false));
+  // ESC 닫기 (범례가 열린 상태 + 다른 모달 없을 때만)
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (legend.hidden) return;
+    // 다른 모달이 열려있으면 우선순위 양보
+    const otherModalOpen = document.querySelector('.modal:not(.hidden)');
+    if (otherModalOpen) return;
+    setState(false);
+  });
+}
+
 // ==================== 모바일 사이드바 토글 ====================
 function setupMobileSidebar() {
   const sidebar = document.getElementById('sidebar');
@@ -80,6 +119,7 @@ function init() {
   setupKeyModal();
   updateProjectHeader();
   setupMobileSidebar();
+  setupLegendToggle();
   buildParcelList();
   setupFilters();
   setupCollapsibles();

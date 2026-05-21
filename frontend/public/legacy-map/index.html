@@ -309,8 +309,14 @@
     <div id="cesium-container"></div>
   </main>
 
-  <!-- 범례 -->
-  <div id="legend">
+  <!-- 범례 토글 버튼 (지도 위 떠있는 작은 버튼) -->
+  <button id="legend-toggle" class="legend-toggle" aria-label="지목 범례 표시/숨김" title="지목 범례" aria-pressed="false">
+    🎨 <span class="legend-toggle-label">범례</span>
+  </button>
+
+  <!-- 범례 (기본 숨김) -->
+  <div id="legend" hidden>
+    <button id="legend-close" class="legend-close" aria-label="범례 닫기">✕</button>
     <div class="legend-item"><span class="legend-color" style="background:#f9a825"></span> 전</div>
     <div class="legend-item"><span class="legend-color" style="background:#1976d2"></span> 답</div>
     <div class="legend-item"><span class="legend-color" style="background:#00e676"></span> 임</div>
