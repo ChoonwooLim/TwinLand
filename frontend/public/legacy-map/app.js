@@ -1,6 +1,37 @@
 // TwinLand - 필지 경계 지도
 // VWorld 오픈API: 주소 → 좌표 → 지적 폴리곤 조회
-// 기본 필지: 경기도 여주시 북내면 상교리 384-18 + 산31 (DATA/ 폴더 보고서 기준)
+// 기본 필지: 경기도 여주시 북내면 상교리 41필지 (DATA/전체지번.png 기준, 총 316,270 m²)
+
+
+// 헤더의 프로젝트 제목·부제목을 현재 PARCELS 기반으로 갱신
+function updateProjectHeader() {
+  const parcels = window.PARCELS || [];
+  const prefix = window.ADDRESS_PREFIX || '';
+  const titleEl = document.getElementById('project-title');
+  const subEl = document.getElementById('project-subtitle');
+
+  // location (동/리) 자동 추출 — 가장 빈도 높은 값
+  const locCounts = {};
+  parcels.forEach(p => { const l = p.location || ''; if (l) locCounts[l] = (locCounts[l] || 0) + 1; });
+  const topLoc = Object.entries(locCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+
+  // 시·군·면 추출 (예: '경기도 여주시 북내면' → '여주시 북내면')
+  const shortPrefix = prefix.replace(/^경기도\s+|^강원도\s+|^충청북도\s+|^충청남도\s+|^전라북도\s+|^전라남도\s+|^경상북도\s+|^경상남도\s+|^제주특별자치도\s+|^서울특별시\s+|^부산광역시\s+|^대구광역시\s+|^인천광역시\s+|^광주광역시\s+|^대전광역시\s+|^울산광역시\s+/, '');
+
+  if (titleEl) titleEl.textContent = shortPrefix || 'TwinLand';
+
+  if (subEl) {
+    const totalM2 = parcels.reduce((s, p) => s + (Number(p.area_m2) || 0), 0);
+    const totalHa = (totalM2 / 10000);
+    const totalPyeong = Math.round(totalM2 * 0.3025);
+    const haTxt = totalHa >= 100 ? totalHa.toFixed(0) : totalHa.toFixed(1);
+    const pyTxt = totalPyeong >= 10000
+      ? `${(totalPyeong / 10000).toFixed(1)} 만평`
+      : `${totalPyeong.toLocaleString()} 평`;
+    const full = `${prefix} ${topLoc}`.trim() || 'TwinLand 필지';
+    subEl.textContent = `${full} · ${parcels.length}필지 · 약 ${haTxt} ha (${pyTxt})`;
+  }
+}
 
 const STORAGE_KEY = 'vworld_api_key';
 
@@ -18,6 +49,7 @@ const wmsLayers = {};     // { layerKey: L.tileLayer.wms }
 // ==================== 초기화 ====================
 function init() {
   setupKeyModal();
+  updateProjectHeader();
   buildParcelList();
   setupFilters();
   setupCollapsibles();

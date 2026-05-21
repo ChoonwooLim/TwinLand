@@ -1,4 +1,4 @@
-// JooJoo Land - 필지 편집 모달
+// TwinLand - 필지 편집 모달
 // 동/리, 지번, 지목, 면적, 소유자 편집 → localStorage 저장 → 페이지 재로드
 
 (function () {
@@ -28,7 +28,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><input type="number" class="ed-no" value="${r.no ?? i + 1}" /></td>
-        <td><input type="text" class="ed-location" value="${escape(r.location ?? '')}" placeholder="예: 금왕리" /></td>
+        <td><input type="text" class="ed-location" value="${escape(r.location ?? '')}" placeholder="예: 상교리" /></td>
         <td><input type="text" class="ed-lot" value="${escape(r.lot ?? '')}" placeholder="예: 469 또는 산205-3" /></td>
         <td>
           <select class="ed-category">
@@ -98,7 +98,7 @@
   });
 
   document.getElementById('editor-reset').addEventListener('click', () => {
-    if (!confirm('기본 34필지 (양평 금왕리)로 복원합니다. 커스텀 데이터는 삭제돼요. 계속?')) return;
+    if (!confirm('기본 41필지 (여주 북내면 상교리)로 복원합니다. 커스텀 데이터는 삭제돼요. 계속?')) return;
     window.resetParcelsToDefault();
     location.reload();
   });

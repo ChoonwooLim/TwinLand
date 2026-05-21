@@ -1,4 +1,4 @@
-// JooJoo Land - 토지 상세 정보 모달
+// TwinLand - 토지 상세 정보 모달
 // 지목/소유자/면적 집계 + 산지 정보 + 외부 조회 링크
 
 (function () {
@@ -59,7 +59,7 @@
   }
   // VWorld 부동산 정보 조회 — 주소로 직행 링크
   function vworldSearchLink(parcel) {
-    const prefix = window.ADDRESS_PREFIX || '경기도 양평군 양동면';
+    const prefix = window.ADDRESS_PREFIX || '경기도 여주시 북내면';
     const addr = encodeURIComponent(`${prefix} ${parcel.location || ''} ${parcel.lot || ''}`.trim());
     return `https://map.vworld.kr/map.do?query=${addr}`;
   }

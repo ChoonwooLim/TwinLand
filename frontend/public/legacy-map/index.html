@@ -56,7 +56,7 @@
       </div>
       <div class="editor-prefix-row">
         <label>주소 prefix</label>
-        <input type="text" id="editor-prefix" placeholder="예: 경기도 양평군 양동면" />
+        <input type="text" id="editor-prefix" placeholder="예: 경기도 여주시 북내면" />
         <span class="hint">리/지번 앞에 붙는 공통 주소 (VWorld 지오코딩용)</span>
       </div>
       <div class="editor-table-wrap">
@@ -115,10 +115,10 @@
   <header>
     <div class="header-left">
       <div class="title-row">
-        <h1>🗺️ <span id="project-title">JooJoo Land</span> <small class="project-suffix">사업예정부지</small></h1>
+        <h1>🗺️ <span id="project-title">여주시 북내면</span> <small class="project-suffix">필지 분석</small></h1>
         <button id="open-landinfo" class="landinfo-btn" title="토지·산지 상세 정보">📊 토지정보</button>
       </div>
-      <div class="subtitle">경기도 양평군 양동면 · 34필지 · 약 51.7ha (15.6만평)</div>
+      <div class="subtitle" id="project-subtitle">경기도 여주시 북내면 상교리 · 41필지 · 약 31.6 ha (9.6 만평)</div>
     </div>
     <div class="header-right">
       <div class="view-toggle">
@@ -201,7 +201,7 @@
               <input type="color" class="adj-color" data-type="military" title="색상" />
               <input type="range" class="adj-alpha" data-type="military" min="0" max="100" step="5" title="채우기 투명도" />
             </div>
-            <p class="hint">대상 34필지 범위 +300m 버퍼 조회. 오른쪽 🎨/슬라이더로 색·투명도 즉시 조정. 국공유지/군유지는 VWorld 속성 제한으로 heuristic 판정.</p>
+            <p class="hint">대상 필지 범위 +300m 버퍼 조회. 오른쪽 🎨/슬라이더로 색·투명도 즉시 조정. 국공유지/군유지는 VWorld 속성 제한으로 heuristic 판정.</p>
           </div>
 
           <div class="tab-panel" id="tab-landuse" role="tabpanel">
@@ -280,7 +280,7 @@
           <label><input type="checkbox" id="style-fill" /> 면 채우기</label>
           <label><input type="checkbox" id="style-outline" /> 외곽선 표시</label>
           <div class="uniform-row">
-            <label><input type="checkbox" id="style-uniform" /> 단일색 <small style="color:var(--text-dim)">(대상 34필지만)</small></label>
+            <label><input type="checkbox" id="style-uniform" /> 단일색 <small style="color:var(--text-dim)">(대상 필지만)</small></label>
             <input type="color" id="style-uniform-color" />
           </div>
           <div class="style-colors">

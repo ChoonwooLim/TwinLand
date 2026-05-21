@@ -1,4 +1,4 @@
-// JooJoo Land - 프로젝트 관리
+// TwinLand - 프로젝트 관리
 // 여러 지역/세팅을 이름으로 저장해서 전환 가능하게.
 // 프로젝트 = { parcels, prefix, style, createdAt, updatedAt }
 
@@ -87,21 +87,36 @@
     );
   }
 
-  // 처음 방문이면 기본 34필지를 "JooJooLand" 프로젝트로 시드
+  // 처음 방문이면 기본 41필지를 "여주시 북내면 상교리" 프로젝트로 시드
+  // 기존 사용자가 'JooJooLand' 프로젝트(34필지 양평 데이터)를 갖고 있으면 자동 마이그레이션
   function seedIfEmpty() {
-    const all = readAll();
-    if (Object.keys(all).length > 0) return;
+    let all = readAll();
     const now = new Date().toISOString();
-    all['JooJooLand'] = {
-      name: 'JooJooLand',
-      parcels: (window.DEFAULT_PARCELS || []).map(p => ({ ...p })),
-      prefix: window.DEFAULT_ADDRESS_PREFIX || '',
-      style: null,
-      createdAt: now,
-      updatedAt: now,
-    };
-    writeAll(all);
-    if (!getActive()) setActive('JooJooLand');
+    const seedName = '여주시 북내면 상교리';
+    const MIGRATION_FLAG = 'twinland_seeded_v2';
+
+    // v2 마이그레이션: JooJooLand 프로젝트 → 여주시 북내면 상교리 로 교체
+    const alreadyMigrated = localStorage.getItem(MIGRATION_FLAG) === '1';
+    if (!alreadyMigrated && all['JooJooLand']) {
+      delete all['JooJooLand'];
+      writeAll(all);
+      // active 가 JooJooLand 였으면 시드 후 새 이름으로 활성화
+      if (getActive() === 'JooJooLand') setActive(seedName);
+    }
+
+    if (Object.keys(all).length === 0) {
+      all[seedName] = {
+        name: seedName,
+        parcels: (window.DEFAULT_PARCELS || []).map(p => ({ ...p })),
+        prefix: window.DEFAULT_ADDRESS_PREFIX || '',
+        style: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+      writeAll(all);
+      if (!getActive()) setActive(seedName);
+    }
+    localStorage.setItem(MIGRATION_FLAG, '1');
   }
 
   // =================== UI ===================

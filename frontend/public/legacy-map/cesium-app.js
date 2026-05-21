@@ -1,4 +1,4 @@
-// JooJoo Land - 3D 뷰어 (Cesium)
+// TwinLand - 3D 뷰어 (Cesium)
 // 2D 에서 로드한 필지 GeoJSON 을 3D 로 재사용
 
 window.CesiumApp = (function () {
