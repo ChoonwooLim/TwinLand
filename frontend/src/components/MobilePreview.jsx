@@ -36,7 +36,21 @@ export default function MobilePreview({ open, onClose }) {
     ? { width: device.width, height: device.height }
     : { width: device.height, height: device.width };
 
+  // iframe URL — Header 가 미리보기 모드를 감지하도록 ?_preview=1 추가
   const fullUrl = useMemo(() => {
+    if (typeof window === 'undefined') return path;
+    try {
+      const u = new URL(path, window.location.origin);
+      u.searchParams.set('_preview', '1');
+      return u.toString();
+    } catch {
+      const sep = path.includes('?') ? '&' : '?';
+      return window.location.origin + (path.startsWith('/') ? path : '/' + path) + sep + '_preview=1';
+    }
+  }, [path]);
+
+  // QR 코드용 외부 공유 URL — _preview 파라미터 제외
+  const shareUrl = useMemo(() => {
     if (typeof window === 'undefined') return path;
     try {
       return new URL(path, window.location.origin).toString();
@@ -45,7 +59,7 @@ export default function MobilePreview({ open, onClose }) {
     }
   }, [path]);
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=2&data=${encodeURIComponent(fullUrl)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=2&data=${encodeURIComponent(shareUrl)}`;
 
   if (!open) return null;
 

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LangToggle from './LangToggle.jsx';
 import MobilePreview from '../MobilePreview.jsx';
@@ -22,6 +22,13 @@ export default function Header() {
   const [mobilePreview, setMobilePreview] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 미리보기 모달 iframe 안에서는 ?_preview=1 → 미리보기 버튼 + 언어 토글 숨김
+  const isPreviewMode = useMemo(() => {
+    const sp = new URLSearchParams(location.search);
+    return sp.get('_preview') === '1';
+  }, [location.search]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -58,16 +65,20 @@ export default function Header() {
         </nav>
 
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.previewBtn}
-            onClick={() => setMobilePreview(true)}
-            aria-label="모바일 미리보기"
-            title="모바일 미리보기"
-          >
-            📱<span className={styles.previewBtnLabel}> 모바일</span>
-          </button>
-          <LangToggle />
+          {!isPreviewMode && (
+            <>
+              <button
+                type="button"
+                className={styles.previewBtn}
+                onClick={() => setMobilePreview(true)}
+                aria-label="모바일 미리보기"
+                title="모바일 미리보기"
+              >
+                📱<span className={styles.previewBtnLabel}> 모바일</span>
+              </button>
+              <LangToggle />
+            </>
+          )}
           {user ? (
             <div className={styles.userWrap}>
               <button
