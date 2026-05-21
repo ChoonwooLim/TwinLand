@@ -1,0 +1,120 @@
+.hero {
+  padding: var(--space-3xl) var(--space-xl);
+  background: var(--joojoo-night);
+  color: var(--joojoo-text-invert);
+  text-align: center;
+}
+
+.heroInner { max-width: 900px; margin: 0 auto; }
+
+.content { background: var(--joojoo-ink); color: var(--joojoo-text-invert); }
+
+.gate {
+  text-align: center;
+  padding: var(--space-3xl);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-2xl);
+}
+
+.gateLock {
+  font-size: 3rem;
+  margin-bottom: var(--space-md);
+}
+
+.gateHint {
+  color: rgba(245, 245, 250, 0.72);
+  font-size: 1rem;
+  margin: var(--space-md) 0;
+  line-height: 1.8;
+}
+
+.gateHint a {
+  color: var(--joojoo-tech);
+}
+
+.gateCtas {
+  margin-top: var(--space-lg);
+}
+
+.docList {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.docListHeader,
+.docRow {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px 140px;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  align-items: center;
+}
+
+.docListHeader {
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--joojoo-text-muted);
+}
+
+.docRow {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background var(--transition-fast);
+}
+
+.docRow:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.docTitle {
+  font-weight: 500;
+}
+
+.docMeta {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--joojoo-text-muted);
+}
+
+.docAction {
+  text-align: right;
+}
+
+.docBtn {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--joojoo-tech);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 229, 255, 0.08);
+  transition: background var(--transition-fast);
+}
+
+.docBtn:hover { background: rgba(0, 229, 255, 0.16); }
+
+.docLockIcon {
+  opacity: 0.4;
+}
+
+.docLocked .docTitle {
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .docListHeader { display: none; }
+  .docRow {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'title action'
+      'meta action';
+    padding: var(--space-md);
+  }
+  .docTitle { grid-area: title; }
+  .docMeta { grid-area: meta; font-size: 0.75rem; }
+  .docAction { grid-area: action; }
+}

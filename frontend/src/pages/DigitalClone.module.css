@@ -1,0 +1,100 @@
+.hero {
+  padding: var(--space-3xl) var(--space-xl);
+  background: var(--joojoo-hero-bg);
+  color: var(--joojoo-text-invert);
+  text-align: center;
+}
+
+.heroInner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.viewer {
+  background: var(--joojoo-ink);
+}
+
+.viewerPlaceholder {
+  position: relative;
+  min-height: 480px;
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(107, 91, 255, 0.2), transparent 60%),
+    linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(107, 91, 255, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xl);
+  color: var(--joojoo-text-invert);
+}
+
+.viewerOrb {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: var(--joojoo-aurora);
+  box-shadow: 0 0 120px rgba(107, 91, 255, 0.6);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.viewerHint {
+  text-align: center;
+  color: rgba(245, 245, 250, 0.7);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.viewerHint code {
+  color: var(--joojoo-tech);
+  font-size: 0.95em;
+}
+
+.features {
+  background: var(--joojoo-cream);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.feature {
+  text-align: center;
+  padding: var(--space-xl);
+  background: var(--joojoo-surface);
+  border: 1px solid var(--joojoo-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.feature:hover {
+  background: var(--joojoo-surface-alt);
+  border-color: var(--joojoo-border-accent);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.featureIcon {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-sm);
+}
+
+.featureTitle {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.cta {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}

@@ -1,0 +1,13 @@
+build:
+  dockerfile: backend/Dockerfile
+  context: backend
+
+start:
+  command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips "*"
+
+port: 8000
+
+healthcheck:
+  path: /health
+  interval: 30
+  timeout: 10

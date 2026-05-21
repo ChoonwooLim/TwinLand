@@ -1,0 +1,25 @@
+.toggle {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  padding: 3px;
+}
+
+.btn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(245, 245, 250, 0.6);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn:hover { color: var(--joojoo-text-invert); }
+
+.active {
+  background: var(--joojoo-aurora);
+  color: var(--joojoo-text-invert);
+  box-shadow: var(--shadow-sm);
+}

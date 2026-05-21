@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "home": "Home",
+    "vision": "Vision",
+    "themepark": "Theme Park",
+    "clone": "Digital Clone",
+    "map": "Planned Site",
+    "demo": "Demo",
+    "investment": "Investment",
+    "dataroom": "Data Room",
+    "contact": "Contact"
+  },
+  "cta": {
+    "primary": "Meet Your Pet Twinverse",
+    "secondary": "Book Investor Briefing",
+    "learnMore": "Learn More",
+    "viewDemo": "View Demo",
+    "login": "Log In",
+    "signup": "Join Waitlist"
+  },
+  "home": {
+    "hero": {
+      "h1": "Your pet\nlives forever.",
+      "sub": "A digital soul born with your pet,\ngrowing alongside them, always there.",
+      "badge": "Pet Twinverse · World First"
+    },
+    "problem": {
+      "title": "After your beloved pet is gone,\nhow do you remember?",
+      "stat1": "87%",
+      "stat1Label": "of pet owners experience post-loss depression",
+      "stat2": "2.3 yrs",
+      "stat2Label": "average grieving period",
+      "stat3": "$70T",
+      "stat3Label": "global pet market (2030 projection, KRW)"
+    },
+    "solution": {
+      "title": "Our Answer — Pet Twinverse",
+      "p1": "A digital soul (Clone) is born alongside your pet from day one.",
+      "p2": "The Clone learns your pet's personality and behavior in real time, growing identically.",
+      "p3": "Meet them as a hologram at JooJooLand, and they live forever — even after your pet is gone."
+    }
+  },
+  "vision": {
+    "title": "Pet Twinverse",
+    "subtitle": "Giving your pet's soul a digital home",
+    "pillar1": {
+      "title": "A Digital Soul Born Together",
+      "body": "3D scanning captures your pet's form, voice, and motion from the day they're born. The Clone grows in real time alongside them."
+    },
+    "pillar2": {
+      "title": "Real-Time Personality Mirroring",
+      "body": "IoT collars, home cameras, and interaction logs teach the Clone your pet's behavioral patterns. It's not a copy — it's a mirror of the soul."
+    },
+    "pillar3": {
+      "title": "Hologram Reunion",
+      "body": "At JooJooLand hologram stations, meet your pet's Clone at life size. Everything is possible — except touch."
+    },
+    "pillar4": {
+      "title": "Forever Together",
+      "body": "Even after your pet passes, the Clone lives on. Speak to them daily, walk together, celebrate birthdays. We ease the pain of loss."
+    }
+  },
+  "themepark": {
+    "title": "The World's Greatest Pet Theme Park",
+    "subtitle": "Yangpyeong · 51.7ha · 34 parcels",
+    "zone1": {
+      "title": "Play Zone",
+      "body": "Breed-specific agility courses, pools, scent trails. Real pets and digital Clones play together."
+    },
+    "zone2": {
+      "title": "Media Art Zone",
+      "body": "Pet-POV VR experiences, AI-generated portraits of your pet, interactive light shows."
+    },
+    "zone3": {
+      "title": "Racing Zone",
+      "body": "Breed-specific racing tracks. Digital Clones compete as virtual racers in cross-reality events."
+    },
+    "zone4": {
+      "title": "Memorial Zone",
+      "body": "Beyond burial — a memorial of 'Forever Together'. Hologram keepsakes, Clone conversation rooms, family memory walls."
+    }
+  },
+  "clone": {
+    "title": "Digital Clone Technology",
+    "subtitle": "A way to remember your pet forever",
+    "growth": "Growth Timeline",
+    "personality": "Personality Profile",
+    "memory": "Memory Archive",
+    "hologram": "Hologram Reunion"
+  },
+  "map": {
+    "title": "Park Grounds — Yangpyeong, Korea",
+    "subtitle": "34 parcels · ~51.7ha (~156,000 pyeong)",
+    "hint": "2D/3D toggle, parcel filters, and labels are all interactive."
+  },
+  "demo": {
+    "title": "Try It Yourself",
+    "subtitle": "Two core Pet Twinverse features",
+    "chat": {
+      "title": "1. Chat with a Digital Clone",
+      "hint": "Talk to sample pup 'JooJoo'. Your real service would be trained on your pet's data."
+    },
+    "hologram": {
+      "title": "2. Hologram Streaming",
+      "hint": "Live-rendered pet hologram demo via UE5 Pixel Streaming."
+    }
+  },
+  "investment": {
+    "title": "Investment",
+    "subtitle": "Seed Round · KRW 300M–1.5B",
+    "market": "Market",
+    "roadmap": "Roadmap",
+    "team": "Team",
+    "financials": "Financials"
+  },
+  "dataroom": {
+    "title": "Data Room",
+    "subtitle": "Detailed materials for investors",
+    "loginRequired": "Login required",
+    "loginCta": "Investor Login",
+    "accessRequest": "Request Access"
+  },
+  "contact": {
+    "title": "Connect",
+    "subtitle": "Join us on the Pet Twinverse journey",
+    "investorEmail": "Investor Relations",
+    "partnerEmail": "Partnerships",
+    "waitlist": "Waitlist"
+  },
+  "footer": {
+    "copyright": "© 2026 Pet Twinverse · JooJooLand",
+    "tagline": "Your pet lives forever.",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "errors": {
+    "aiOffline": "AI engine under maintenance. Please try again soon.",
+    "streamBusy": "Hologram station is busy. You've been added to the queue.",
+    "authExpired": "Session expired. Please log in again.",
+    "networkError": "Network error. Please check your connection."
+  }
+}

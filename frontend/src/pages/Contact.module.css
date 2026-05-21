@@ -1,0 +1,103 @@
+.wrap {
+  position: relative;
+  min-height: calc(100vh - var(--header-height));
+  padding: var(--space-3xl) var(--space-xl);
+  background: var(--joojoo-hero-bg);
+  color: var(--joojoo-text-invert);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  width: 100%;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  backdrop-filter: blur(16px);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.cardLabel {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--joojoo-soul);
+  margin-bottom: var(--space-sm);
+}
+
+.name {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  background: var(--joojoo-aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-md);
+}
+
+.credentials {
+  font-size: 0.95rem;
+  color: rgba(245, 245, 250, 0.7);
+  line-height: 1.7;
+  margin-bottom: var(--space-xl);
+}
+
+.contactGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-lg);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.row:last-child { border-bottom: 0; }
+
+.rowLabel {
+  font-size: 0.85rem;
+  color: var(--joojoo-text-muted);
+  font-family: var(--font-mono);
+}
+
+.rowValue {
+  font-size: 1rem;
+}
+
+.rowValue a {
+  color: var(--joojoo-tech);
+}
+
+.ctas {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .ctas { flex-direction: column; }
+  .ctas > * { width: 100%; }
+}

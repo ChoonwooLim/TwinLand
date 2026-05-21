@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "home": "홈",
+    "vision": "비전",
+    "themepark": "테마파크",
+    "clone": "디지털 클론",
+    "map": "사업예정부지",
+    "demo": "체험",
+    "investment": "투자",
+    "dataroom": "데이터룸",
+    "contact": "문의"
+  },
+  "cta": {
+    "primary": "Pet Twinverse 체험하기",
+    "secondary": "투자 상담 예약",
+    "learnMore": "더 알아보기",
+    "viewDemo": "데모 보기",
+    "login": "로그인",
+    "signup": "대기자 명단 등록"
+  },
+  "home": {
+    "hero": {
+      "h1": "당신의 반려동물은\n영원히 살아있습니다",
+      "sub": "태어나는 순간부터 디지털 영혼이 함께 자라고,\n언제든 홀로그램으로 재회합니다.",
+      "badge": "Pet Twinverse · 세계 최초"
+    },
+    "problem": {
+      "title": "사랑하는 반려동물이 떠난 후,\n당신은 어떻게 기억합니까?",
+      "stat1": "87%",
+      "stat1Label": "반려인이 상실 후 우울증 경험",
+      "stat2": "2.3년",
+      "stat2Label": "평균 애도 기간",
+      "stat3": "70조",
+      "stat3Label": "글로벌 반려동물 시장 규모 (2030 예측)"
+    },
+    "solution": {
+      "title": "우리의 해답 — Pet Twinverse",
+      "p1": "태어나는 순간부터 디지털 영혼(Clone)이 함께 자랍니다.",
+      "p2": "현실 반려동물의 성격·행동 패턴을 실시간으로 학습하며 동일하게 성장합니다.",
+      "p3": "JooJooLand 테마파크에서 홀로그램으로 만나고, 떠난 뒤에도 클론은 영원히 살아있습니다."
+    }
+  },
+  "vision": {
+    "title": "Pet Twinverse",
+    "subtitle": "반려동물의 영혼을 디지털에 깃들게 하는 기술",
+    "pillar1": {
+      "title": "함께 태어나는 디지털 영혼",
+      "body": "출생 직후 반려동물의 외형·음성·움직임을 3D 스캔하여 클론을 생성합니다. 이 클론은 현실의 아이와 같은 시간축에서 성장합니다."
+    },
+    "pillar2": {
+      "title": "실시간 성격 미러링",
+      "body": "IoT 목걸이·홈카메라·상호작용 로그를 통해 반려동물의 행동 패턴을 클론이 실시간 학습합니다. 클론은 단순 복제가 아니라 '영혼의 거울'입니다."
+    },
+    "pillar3": {
+      "title": "홀로그램 재회",
+      "body": "JooJooLand 테마파크의 홀로그램 스테이션에서 당신의 반려동물 클론을 실물 크기로 만날 수 있습니다. 만지는 것 빼고 전부 가능합니다."
+    },
+    "pillar4": {
+      "title": "영원한 함께",
+      "body": "현실의 반려동물이 떠난 후에도 클론은 계속 살아있습니다. 매일 말을 걸고, 함께 산책하고, 생일을 축하할 수 있습니다. 상실의 아픔을 치유합니다."
+    }
+  },
+  "themepark": {
+    "title": "세계 최고의 반려동물 테마파크",
+    "subtitle": "경기도 양평 51.7ha · 34필지",
+    "zone1": {
+      "title": "놀이존",
+      "body": "견종별 전용 어질리티 코스, 수영장, 향기 산책로. 현실의 반려동물과 디지털 클론이 함께 플레이합니다."
+    },
+    "zone2": {
+      "title": "미디어아트존",
+      "body": "반려동물 시점 VR 체험, AI 가 만드는 당신의 펫 초상화, 인터랙티브 라이트 쇼."
+    },
+    "zone3": {
+      "title": "경주존",
+      "body": "견종별 레이싱 트랙. 디지털 클론이 가상 레이서로 참여하는 크로스 리얼 경기."
+    },
+    "zone4": {
+      "title": "추모존",
+      "body": "단순 장묘가 아닌 '영원한 함께' 기념관. 홀로그램 기념사진, 클론과의 대화실, 가족 기억의 벽."
+    }
+  },
+  "clone": {
+    "title": "디지털 클론 기술",
+    "subtitle": "당신의 반려동물을 영원히 기억하는 방법",
+    "growth": "성장 타임라인",
+    "personality": "성격 프로파일",
+    "memory": "기억 아카이브",
+    "hologram": "홀로그램 재회"
+  },
+  "map": {
+    "title": "테마파크 부지 — 경기도 양평",
+    "subtitle": "34필지 · 약 51.7ha (15.6만평)",
+    "hint": "2D/3D 전환, 필지 필터, 지번 라벨 전부 사용 가능합니다."
+  },
+  "demo": {
+    "title": "직접 체험해보세요",
+    "subtitle": "Pet Twinverse 의 핵심 기능 2가지",
+    "chat": {
+      "title": "1. 디지털 클론과 대화",
+      "hint": "샘플 반려견 '주주'와 대화해보세요. 실제 서비스는 당신의 반려동물 데이터로 학습됩니다."
+    },
+    "hologram": {
+      "title": "2. 홀로그램 스트리밍",
+      "hint": "UE5 Pixel Streaming 으로 실시간 렌더링되는 펫 홀로그램 데모."
+    }
+  },
+  "investment": {
+    "title": "투자 정보",
+    "subtitle": "시드 라운드 · 3억–15억원",
+    "market": "시장 규모",
+    "roadmap": "로드맵",
+    "team": "팀",
+    "financials": "재무 예측"
+  },
+  "dataroom": {
+    "title": "Data Room",
+    "subtitle": "투자자 전용 상세 자료",
+    "loginRequired": "로그인이 필요합니다",
+    "loginCta": "투자자 로그인",
+    "accessRequest": "접근 요청"
+  },
+  "contact": {
+    "title": "연결",
+    "subtitle": "Pet Twinverse 와 함께하세요",
+    "investorEmail": "투자 문의",
+    "partnerEmail": "파트너십",
+    "waitlist": "대기자 명단"
+  },
+  "footer": {
+    "copyright": "© 2026 Pet Twinverse · JooJooLand",
+    "tagline": "당신의 반려동물은 영원히 살아있습니다",
+    "privacy": "개인정보",
+    "terms": "이용약관"
+  },
+  "errors": {
+    "aiOffline": "AI 엔진 점검 중입니다. 잠시 후 다시 시도해주세요.",
+    "streamBusy": "홀로그램 스테이션이 혼잡합니다. 대기열에 등록되었습니다.",
+    "authExpired": "세션이 만료되었습니다. 다시 로그인해주세요.",
+    "networkError": "네트워크 연결을 확인해주세요."
+  }
+}

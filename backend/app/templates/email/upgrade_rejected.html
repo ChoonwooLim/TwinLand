@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>JooJooLand</title></head>
+<body style="font-family:'Pretendard',sans-serif;background:#08112a;color:#eaeaf5;margin:0;padding:40px 20px;">
+  <div style="max-width:560px;margin:0 auto;background:#101a38;border-radius:12px;padding:32px;">
+    <h1 style="color:#ff6bd6;margin:0 0 16px;">등업 요청 결과 안내</h1>
+    <p>{{ realname or email }} 님, 아쉽게도 이번 등업 요청은 아래 사유로 반려되었습니다.</p>
+    <blockquote style="border-left:3px solid #ff6bd6;padding:8px 16px;margin:16px 0;color:#c9a8ff;">{{ reject_reason or '-' }}</blockquote>
+    <p>추가 정보 보완 후 다시 신청 가능합니다.</p>
+    <hr style="border:none;border-top:1px solid #2a3560;margin:32px 0;" />
+    <p style="font-size:12px;color:#8a8fae;">문의: {{ from_email }}</p>
+  </div>
+</body></html>

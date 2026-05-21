@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>JooJooLand Admin</title></head>
+<body style="font-family:'Pretendard',sans-serif;background:#08112a;color:#eaeaf5;margin:0;padding:40px 20px;">
+  <div style="max-width:560px;margin:0 auto;background:#101a38;border-radius:12px;padding:32px;">
+    <h1 style="color:#c9a8ff;margin:0 0 16px;">새 리드 등록</h1>
+    <ul>
+      <li>이름: {{ name or '-' }} ({{ email }})</li>
+      <li>회사: {{ company or '-' }}</li>
+      <li>전화: {{ phone or '-' }}</li>
+      <li>소스: {{ source }}</li>
+    </ul>
+    <blockquote style="border-left:3px solid #6b5bff;padding:8px 16px;color:#c9a8ff;">{{ message or '' }}</blockquote>
+    <p><a href="{{ admin_url }}" style="color:#6b5bff;">어드민에서 확인</a></p>
+  </div>
+</body></html>

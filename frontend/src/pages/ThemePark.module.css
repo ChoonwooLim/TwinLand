@@ -1,0 +1,73 @@
+.hero {
+  padding: var(--space-3xl) var(--space-xl);
+  background: var(--joojoo-night);
+  color: var(--joojoo-text-invert);
+  text-align: center;
+}
+
+.heroInner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.zones {
+  background: var(--joojoo-cream);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xl);
+}
+
+.card {
+  position: relative;
+  padding: var(--space-2xl);
+  background: var(--joojoo-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--joojoo-border);
+  overflow: hidden;
+  transition: transform var(--transition-base), box-shadow var(--transition-base), background var(--transition-base), border-color var(--transition-base);
+}
+
+.card:hover {
+  background: var(--joojoo-surface-alt);
+  border-color: var(--joojoo-border-accent);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--zone-color, var(--joojoo-aurora-a));
+}
+
+.cardEmoji {
+  font-size: 3rem;
+  margin-bottom: var(--space-md);
+}
+
+.cardTitle {
+  font-size: 1.75rem;
+  margin-bottom: var(--space-sm);
+  color: var(--zone-color);
+}
+
+.cardBody {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--joojoo-text);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; gap: var(--space-lg); }
+}

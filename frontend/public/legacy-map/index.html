@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JooJoo Land — 34필지 경계 지도</title>
+
+  <!-- Leaflet (2D) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Cesium (3D) — lazy loaded in cesium-app.js 로도 가능하나 간단히 상단 로딩 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.118/Build/Cesium/Widgets/widgets.css" />
+  <script src="https://cdn.jsdelivr.net/npm/cesium@1.118/Build/Cesium/Cesium.js"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 토지 상세 정보 모달 -->
+  <div id="landinfo-modal" class="modal hidden">
+    <div class="modal-content landinfo-modal-content">
+      <div class="editor-header">
+        <h2>📊 토지 상세 정보</h2>
+        <button id="landinfo-close" class="editor-close-btn" title="닫기">✕</button>
+      </div>
+      <div id="landinfo-body" class="landinfo-body"></div>
+    </div>
+  </div>
+
+  <!-- 프로젝트 관리 모달 -->
+  <div id="projects-modal" class="modal hidden">
+    <div class="modal-content projects-modal-content">
+      <div class="editor-header">
+        <h2>프로젝트 관리</h2>
+        <button id="projects-close" class="editor-close-btn" title="닫기">✕</button>
+      </div>
+      <div class="projects-save-row">
+        <input type="text" id="projects-new-name" placeholder="새 프로젝트 이름" />
+        <button id="projects-save-new" class="editor-btn-primary">현재 세팅을 새 프로젝트로 저장</button>
+        <button id="projects-import" class="editor-btn-secondary">JSON 가져오기</button>
+        <input type="file" id="projects-file-input" accept=".json" style="display:none" />
+      </div>
+      <div id="projects-list" class="projects-list"></div>
+      <p class="hint">• <strong>불러오기</strong>: 해당 프로젝트로 전환 (페이지 재로드) · <strong>덮어쓰기</strong>: 현재 세팅을 그 프로젝트에 저장</p>
+    </div>
+  </div>
+
+  <!-- 필지 편집 모달 -->
+  <div id="editor-modal" class="modal hidden">
+    <div class="modal-content editor-modal-content">
+      <div class="editor-header">
+        <h2>필지 편집</h2>
+        <button id="editor-close" class="editor-close-btn" title="닫기">✕</button>
+      </div>
+      <div class="editor-prefix-row">
+        <label>주소 prefix</label>
+        <input type="text" id="editor-prefix" placeholder="예: 경기도 양평군 양동면" />
+        <span class="hint">리/지번 앞에 붙는 공통 주소 (VWorld 지오코딩용)</span>
+      </div>
+      <div class="editor-table-wrap">
+        <table class="editor-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>동/리</th>
+              <th>지번</th>
+              <th>지목</th>
+              <th>면적(㎡)</th>
+              <th>평</th>
+              <th>소유자</th>
+              <th>비고</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="editor-tbody"></tbody>
+        </table>
+      </div>
+      <div class="editor-actions">
+        <button id="editor-add-row" class="editor-btn-secondary">+ 행 추가</button>
+        <button id="editor-import" class="editor-btn-secondary">JSON 가져오기</button>
+        <button id="editor-export" class="editor-btn-secondary">JSON 내보내기</button>
+        <button id="editor-reset" class="editor-btn-danger">기본값 복원</button>
+        <span style="flex:1"></span>
+        <button id="editor-cancel" class="editor-btn-secondary">취소</button>
+        <button id="editor-save" class="editor-btn-primary">저장 후 다시 로드</button>
+      </div>
+      <input type="file" id="editor-file-input" accept=".json" style="display:none" />
+    </div>
+  </div>
+
+  <!-- VWorld API 키 설정 모달 -->
+  <div id="key-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>VWorld API 키 필요</h2>
+      <p>
+        지적(필지) 경계선을 불러오기 위해 국토교통부 <strong>VWorld</strong> API 키가 필요합니다.<br/>
+        무료 발급 (1분 소요):
+      </p>
+      <ol>
+        <li><a href="https://www.vworld.kr/dev/v4api.do" target="_blank" rel="noopener">VWorld 오픈API 페이지</a> → 로그인</li>
+        <li>"인증키 발급" → 서비스 URL에 <code id="domain-hint">http://localhost:8000</code> 입력</li>
+        <li>발급된 키 아래에 붙여넣기</li>
+      </ol>
+      <div class="key-input-row">
+        <input type="text" id="key-input" placeholder="VWorld API 키 붙여넣기" />
+        <button id="key-save">저장</button>
+      </div>
+      <p class="hint">키는 브라우저 localStorage 에 저장됩니다 (서버 전송 없음).</p>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header>
+    <div class="header-left">
+      <div class="title-row">
+        <h1>🗺️ <span id="project-title">JooJoo Land</span> <small class="project-suffix">사업예정부지</small></h1>
+        <button id="open-landinfo" class="landinfo-btn" title="토지·산지 상세 정보">📊 토지정보</button>
+      </div>
+      <div class="subtitle">경기도 양평군 양동면 · 34필지 · 약 51.7ha (15.6만평)</div>
+    </div>
+    <div class="header-right">
+      <div class="view-toggle">
+        <button id="mode-2d" class="mode-btn active">2D</button>
+        <button id="mode-3d" class="mode-btn">3D</button>
+      </div>
+      <div class="basemap-toggle" title="베이스 지도 전환">
+        <button class="basemap-btn active" data-basemap="satellite" title="VWorld 위성 + 지번 라벨">🛰️ 위성</button>
+        <button class="basemap-btn" data-basemap="esri" title="Esri World Imagery (고해상도)">🌍 Esri</button>
+        <button class="basemap-btn" data-basemap="base" title="VWorld 일반지도">🗺️ 일반</button>
+        <button class="basemap-btn" data-basemap="terrain" title="Esri World Topo (지형)">⛰️ 지형</button>
+        <button class="basemap-btn" data-basemap="osm" title="OpenStreetMap">📍 OSM</button>
+      </div>
+      <div class="progress" id="progress">
+        <span id="progress-text">대기 중...</span>
+        <div class="progress-bar"><div id="progress-bar-fill"></div></div>
+      </div>
+      <button id="open-projects" title="프로젝트 관리">📁 <span id="active-project-label">—</span></button>
+      <button id="open-editor" title="필지 편집">✏️ 편집</button>
+      <button id="reset-key" title="키 재설정">🔑</button>
+    </div>
+  </header>
+
+  <!-- 메인 레이아웃 -->
+  <main>
+    <aside id="sidebar">
+      <div class="sidebar-section">
+        <h3>필터</h3>
+        <div class="filter-group">
+          <strong>지목</strong>
+          <div id="filter-categories"></div>
+        </div>
+        <div class="filter-group">
+          <strong>소유자</strong>
+          <div id="filter-owners"></div>
+        </div>
+        <div class="filter-group" id="group-parcel-list">
+          <strong>필지 목록 <span id="count">(0/34)</span></strong>
+          <div id="parcel-list"></div>
+        </div>
+        <div class="filter-group">
+          <label><input type="checkbox" id="toggle-cadastral" checked /> 지적편집도 표시</label>
+          <label><input type="checkbox" id="toggle-labels" checked /> 지번 라벨</label>
+          <p class="hint">베이스 지도는 상단 버튼으로 전환.</p>
+        </div>
+        <div class="filter-group" id="group-gis-tabs">
+          <strong>GIS 오버레이</strong>
+          <div class="tab-bar" role="tablist">
+            <button class="tab-button active" data-tab="site" role="tab" title="대상부지 + 인접부지">📍 대상</button>
+            <button class="tab-button" data-tab="landuse" role="tab" title="토지용도·지구·계획시설">🏞 용도</button>
+            <button class="tab-button" data-tab="terrain" role="tab" title="경사·생태·환경평가">⛰ 환경</button>
+            <button class="tab-button" data-tab="regulation" role="tab" title="개발제한·군사·문화재·수자원">🚧 규제</button>
+            <button class="tab-button" data-tab="transport" role="tab" title="도로·철도">🛣 교통</button>
+            <button class="tab-button" data-tab="forest" role="tab" title="산림청·임업진흥원 임상·토양·산지구분">🌲 산림</button>
+          </div>
+
+          <div class="tab-panel active" id="tab-site" role="tabpanel">
+            <div class="adj-layer-row">
+              <label><input type="checkbox" class="layer-toggle" value="road" /> <span class="layer-swatch" data-type="road"></span> 도로</label>
+              <input type="color" class="adj-color" data-type="road" title="색상" />
+              <input type="range" class="adj-alpha" data-type="road" min="0" max="100" step="5" title="채우기 투명도" />
+            </div>
+            <div class="adj-layer-row">
+              <label><input type="checkbox" class="layer-toggle" value="ditch" /> <span class="layer-swatch" data-type="ditch"></span> 구거</label>
+              <input type="color" class="adj-color" data-type="ditch" title="색상" />
+              <input type="range" class="adj-alpha" data-type="ditch" min="0" max="100" step="5" title="채우기 투명도" />
+            </div>
+            <div class="adj-layer-row">
+              <label><input type="checkbox" class="layer-toggle" value="river" /> <span class="layer-swatch" data-type="river"></span> 하천·제방·유지</label>
+              <input type="color" class="adj-color" data-type="river" title="색상" />
+              <input type="range" class="adj-alpha" data-type="river" min="0" max="100" step="5" title="채우기 투명도" />
+            </div>
+            <div class="adj-layer-row">
+              <label><input type="checkbox" class="layer-toggle" value="public" /> <span class="layer-swatch" data-type="public"></span> 국공유지 <small>(β)</small></label>
+              <input type="color" class="adj-color" data-type="public" title="색상" />
+              <input type="range" class="adj-alpha" data-type="public" min="0" max="100" step="5" title="채우기 투명도" />
+            </div>
+            <div class="adj-layer-row">
+              <label><input type="checkbox" class="layer-toggle" value="military" /> <span class="layer-swatch" data-type="military"></span> 군유지 <small>(β)</small></label>
+              <input type="color" class="adj-color" data-type="military" title="색상" />
+              <input type="range" class="adj-alpha" data-type="military" min="0" max="100" step="5" title="채우기 투명도" />
+            </div>
+            <p class="hint">대상 34필지 범위 +300m 버퍼 조회. 오른쪽 🎨/슬라이더로 색·투명도 즉시 조정. 국공유지/군유지는 VWorld 속성 제한으로 heuristic 판정.</p>
+          </div>
+
+          <div class="tab-panel" id="tab-landuse" role="tabpanel">
+            <label><input type="checkbox" class="wms-toggle" value="uq161" /> 용도지역 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="uq162" /> 용도지구 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="uq163" /> 도시계획시설 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="landuse" /> 토지이용현황 <small class="beta-tag">(β)</small></label>
+            <p class="hint">VWorld WMS · 줌 14+ 에서 잘 보입니다.</p>
+          </div>
+
+          <div class="tab-panel" id="tab-terrain" role="tabpanel">
+            <label><input type="checkbox" class="wms-toggle" value="slope" /> 경사도 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="eco" /> 생태자연도 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="kemp" /> 국토환경성평가 <small class="beta-tag">(β)</small></label>
+            <p class="hint">경사도·생태·환경 평가는 출처 서버에 따라 타일이 비어있을 수 있음. (β) 표기는 레이어 ID 검증 중.</p>
+          </div>
+
+          <div class="tab-panel" id="tab-regulation" role="tabpanel">
+            <label><input type="checkbox" class="wms-toggle" value="ud801" /> 개발제한구역(GB)</label>
+            <label><input type="checkbox" class="wms-toggle" value="waprl" /> 상수원보호구역 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="wkmstrm" /> 수변구역 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="asetl" /> 군사시설보호구역 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="ascult" /> 문화재보호구역 <small class="beta-tag">(β)</small></label>
+          </div>
+
+          <div class="tab-panel" id="tab-transport" role="tabpanel">
+            <label><input type="checkbox" class="wms-toggle" value="road-net" /> 도로망 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="rail-net" /> 철도망 <small class="beta-tag">(β)</small></label>
+          </div>
+
+          <div class="tab-panel" id="tab-forest" role="tabpanel">
+            <label><input type="checkbox" id="toggle-mountain-poi" /> 🥾 주변 등산 인프라 <small>(산림청 POI)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="forest-stand" /> 임상도 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="forest-soil" /> 산림입지토양도 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="forest-class" /> 산지구분도 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="landslide" /> 산사태위험지도 <small class="beta-tag">(β)</small></label>
+            <label><input type="checkbox" class="wms-toggle" value="eco-nature" /> 자연환경보전지역 <small class="beta-tag">(β)</small></label>
+            <div class="forest-ext-links">
+              <strong>🔗 외부 공식 조회</strong>
+              <a class="ext-link" href="https://gis.kofpi.or.kr/" target="_blank" rel="noopener">
+                🌲 임업정보 다드림 <small>(필지 통합 · 경사·임상·토양·산사태)</small>
+              </a>
+              <a class="ext-link" href="https://map.forest.go.kr/" target="_blank" rel="noopener">
+                🗺️ 산림공간정보서비스 FGIS <small>(임상도·임도망·맞춤형 조림)</small>
+              </a>
+              <a class="ext-link" href="http://www.forestland.go.kr/" target="_blank" rel="noopener">
+                ⛰️ 산지정보시스템 <small>(보전/준보전·전용제한 판정)</small>
+              </a>
+              <p class="hint">β 레이어는 VWorld 에서 응답이 없을 수 있습니다. 그럴 땐 위 링크로 조회하세요.</p>
+            </div>
+          </div>
+        </div>
+        <div class="filter-group" id="group-3d-only">
+          <strong>3D 전용</strong>
+          <label><input type="checkbox" id="toggle-google-3d" /> Google 실사 3D 건물</label>
+          <label><input type="checkbox" id="toggle-osm-buildings" /> OSM 박스 건물 (전역)</label>
+          <div style="display:flex;gap:4px;margin-top:6px;">
+            <input type="text" id="fly-address" placeholder="주소 → 이동 (예: 서울 강남구)" style="flex:1;min-width:0;padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:12px;" />
+            <button id="fly-btn" style="padding:4px 10px;background:#1a237e;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;">이동</button>
+          </div>
+        </div>
+        <div class="filter-group" id="group-parcel-style">
+          <strong>필지 스타일</strong>
+          <div class="style-row style-row-3d-only">
+            <label>높이 <span id="style-height-val" class="style-val">8m</span> <small style="color:var(--text-dim)">(3D)</small></label>
+            <input type="range" id="style-height" min="0" max="10" step="0.5" />
+          </div>
+          <div class="style-row">
+            <label>투명도 <span id="style-alpha-val" class="style-val">55%</span></label>
+            <input type="range" id="style-alpha" min="0" max="1" step="0.05" />
+          </div>
+          <div class="style-row">
+            <label>외곽선 굵기 <span id="style-outline-width-val" class="style-val">2px</span></label>
+            <input type="range" id="style-outline-width" min="1" max="10" step="1" />
+          </div>
+          <label><input type="checkbox" id="style-fill" /> 면 채우기</label>
+          <label><input type="checkbox" id="style-outline" /> 외곽선 표시</label>
+          <div class="uniform-row">
+            <label><input type="checkbox" id="style-uniform" /> 단일색 <small style="color:var(--text-dim)">(대상 34필지만)</small></label>
+            <input type="color" id="style-uniform-color" />
+          </div>
+          <div class="style-colors">
+            <div class="style-color-row"><span>전</span><input type="color" id="style-color-전" /></div>
+            <div class="style-color-row"><span>답</span><input type="color" id="style-color-답" /></div>
+            <div class="style-color-row"><span>임</span><input type="color" id="style-color-임" /></div>
+            <div class="style-color-row"><span>임야</span><input type="color" id="style-color-임야" /></div>
+            <div class="style-color-row"><span>대</span><input type="color" id="style-color-대" /></div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <div id="map"></div>
+    <div id="cesium-container"></div>
+  </main>
+
+  <!-- 범례 -->
+  <div id="legend">
+    <div class="legend-item"><span class="legend-color" style="background:#f9a825"></span> 전</div>
+    <div class="legend-item"><span class="legend-color" style="background:#1976d2"></span> 답</div>
+    <div class="legend-item"><span class="legend-color" style="background:#00e676"></span> 임</div>
+    <div class="legend-item"><span class="legend-color" style="background:#e91e63"></span> 임야</div>
+    <div class="legend-item"><span class="legend-color" style="background:#ffeb3b"></span> 대</div>
+    <div class="legend-sep"></div>
+    <div class="legend-item legend-adj" data-type="road" hidden><span class="legend-color" data-type="road"></span> 도로</div>
+    <div class="legend-item legend-adj" data-type="ditch" hidden><span class="legend-color" data-type="ditch"></span> 구거</div>
+    <div class="legend-item legend-adj" data-type="river" hidden><span class="legend-color" data-type="river"></span> 하천·제방·유지</div>
+    <div class="legend-item legend-adj" data-type="public" hidden><span class="legend-color" data-type="public"></span> 국공유지</div>
+    <div class="legend-item legend-adj" data-type="military" hidden><span class="legend-color" data-type="military"></span> 군유지</div>
+  </div>
+
+  <script src="/api/vworld/config.js" onerror="console.warn('/api/vworld/config.js 없음 — 모달로 키 입력')"></script>
+  <script src="parcels.js"></script>
+  <script src="projects.js"></script>
+  <script src="app.js"></script>
+  <script src="cesium-app.js"></script>
+  <script src="editor.js"></script>
+  <script src="landinfo.js"></script>
+</body>
+</html>

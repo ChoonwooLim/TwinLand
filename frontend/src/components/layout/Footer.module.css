@@ -1,0 +1,99 @@
+.footer {
+  background: var(--joojoo-night);
+  color: var(--joojoo-text-invert);
+  padding: var(--space-3xl) var(--space-xl) var(--space-xl);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: var(--space-2xl);
+  align-items: start;
+}
+
+.brandBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.brandMark {
+  background: var(--joojoo-aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+  color: var(--joojoo-soul);
+  font-size: 1rem;
+  font-style: italic;
+  margin: 0;
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contactLabel {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--joojoo-text-muted);
+  margin-bottom: 6px;
+}
+
+.name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.link {
+  color: rgba(245, 245, 250, 0.78);
+  font-size: 0.95rem;
+  transition: color var(--transition-fast);
+}
+
+.link:hover {
+  color: var(--joojoo-tech);
+}
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--joojoo-text-muted);
+  text-align: right;
+}
+
+.legalSmall {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+
+  .legal {
+    text-align: left;
+  }
+}
