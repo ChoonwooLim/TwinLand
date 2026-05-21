@@ -24,8 +24,17 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 미리보기 모달 iframe 안에서는 ?_preview=1 → 미리보기 버튼 + 언어 토글 숨김
+  // 미리보기 모달 iframe 안에서는 미리보기 버튼 + 언어 토글 숨김
+  // 1차: 모든 iframe (window.self !== window.top) — 즉시 효과, 캐시 무관
+  // 2차: ?_preview=1 쿼리 (호환성)
   const isPreviewMode = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      if (window.self !== window.top) return true;
+    } catch {
+      // cross-origin iframe 접근 차단 시도 차단됨 → iframe 내부
+      return true;
+    }
     const sp = new URLSearchParams(location.search);
     return sp.get('_preview') === '1';
   }, [location.search]);
