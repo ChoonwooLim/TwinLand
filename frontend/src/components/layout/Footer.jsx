@@ -11,7 +11,7 @@ export default function Footer() {
         <div className={styles.brandBlock}>
           <div className={styles.brand}>
             <span className={styles.brandMark}>◐</span>
-            <span>JooJooLand</span>
+            <span>TwinLand</span>
           </div>
           <p className={styles.tagline}>{t('footer.tagline')}</p>
         </div>
@@ -24,7 +24,7 @@ export default function Footer() {
         </div>
 
         <div className={styles.legal}>
-          <div>© {year} Pet Twinverse · JooJooLand</div>
+          <div>© {year} TwinLand · Korean GIS</div>
           <div className={styles.legalSmall}>
             All rights, licenses, and intellectual property reserved by Steven Lim.
           </div>

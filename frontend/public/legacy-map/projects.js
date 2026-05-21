@@ -3,11 +3,11 @@
 // 프로젝트 = { parcels, prefix, style, createdAt, updatedAt }
 
 (function () {
-  const PROJECTS_KEY = 'joojoo_projects';
-  const ACTIVE_KEY = 'joojoo_active_project';
-  const STYLE_KEY = 'joojoo_style';
-  const PARCELS_KEY = 'joojoo_custom_parcels';
-  const PREFIX_KEY = 'joojoo_address_prefix';
+  const PROJECTS_KEY = 'twinland_projects';
+  const ACTIVE_KEY = 'twinland_active_project';
+  const STYLE_KEY = 'twinland_style';
+  const PARCELS_KEY = 'twinland_custom_parcels';
+  const PREFIX_KEY = 'twinland_address_prefix';
 
   function readAll() {
     try {

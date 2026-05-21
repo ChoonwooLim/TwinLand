@@ -27,7 +27,7 @@ window.CesiumApp = (function () {
   };
   let storedStyle = null;
   try {
-    const raw = localStorage.getItem('joojoo_style');
+    const raw = localStorage.getItem('twinland_style');
     storedStyle = raw ? JSON.parse(raw) : null;
   } catch (e) {}
   const style = Object.assign({}, defaultStyle, storedStyle || {});
@@ -365,7 +365,7 @@ window.CesiumApp = (function () {
   function applyStyle(patch) {
     Object.assign(style, patch || {});
     if (patch && patch.colors) Object.assign(style.colors, patch.colors);
-    try { localStorage.setItem('joojoo_style', JSON.stringify(style)); } catch (e) {}
+    try { localStorage.setItem('twinland_style', JSON.stringify(style)); } catch (e) {}
     if (!viewer) return;
     const h = Math.max(style.height, 0);
     allParcelGroups.forEach((g) => {
@@ -481,7 +481,7 @@ window.CesiumApp = (function () {
   function wireControls() {
     // 2D 모드에서 이미 localStorage 를 업데이트했을 수 있으므로 재동기화
     try {
-      const raw = localStorage.getItem('joojoo_style');
+      const raw = localStorage.getItem('twinland_style');
       const s = raw ? JSON.parse(raw) : null;
       if (s) {
         Object.assign(style, s);

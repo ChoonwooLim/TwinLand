@@ -17,7 +17,7 @@ i18n
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
-      lookupLocalStorage: 'joojoo_lang',
+      lookupLocalStorage: 'twinland_lang',
     },
     interpolation: { escapeValue: false },
     returnEmptyString: false,

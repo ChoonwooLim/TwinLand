@@ -1,5 +1,6 @@
-// JooJoo Land - 34필지 경계 지도
+// TwinLand - 필지 경계 지도
 // VWorld 오픈API: 주소 → 좌표 → 지적 폴리곤 조회
+// 기본 필지: 경기도 여주시 북내면 상교리 384-18 + 산31 (DATA/ 폴더 보고서 기준)
 
 const STORAGE_KEY = 'vworld_api_key';
 
@@ -66,9 +67,10 @@ function setupKeyModal() {
 // ==================== 지도 초기화 ====================
 function startMap(key) {
   currentApiKey = key;
-  // 양동면 금왕리 대략 중심 (산205 근처)
+  // 여주시 북내면 상교리 대략 중심 (DATA/ 384-18 + 산31 근처)
+  // VWorld geocoder 가 필지 폴리곤을 받아오면 fitBounds 로 자동 조정됨.
   map = L.map('map', {
-    center: [37.378, 127.738],
+    center: [37.354, 127.620],
     zoom: 15,
     zoomControl: true,
   });
@@ -235,9 +237,9 @@ const WMS_LAYER_CONFIG = {
 };
 
 // ==================== 2D (Leaflet) 필지 스타일 ====================
-// cesium-app.js 와 `joojoo_style` localStorage 키를 공유한다. 양 모듈이
+// cesium-app.js 와 `twinland_style` localStorage 키를 공유한다. 양 모듈이
 // 같은 DOM 입력에 각자 리스너를 달고 각자 레이어에 반영.
-const PARCEL_STYLE_KEY = 'joojoo_style';
+const PARCEL_STYLE_KEY = 'twinland_style';
 const LEAFLET_STYLE_DEFAULTS = {
   alpha: 0.35,          // fillOpacity
   outlineWidth: 2.5,    // weight
@@ -509,7 +511,7 @@ const ADJ_LAYER_CONFIG = {
 };
 
 // 사용자 커스터마이즈 — localStorage 에 영속
-const ADJ_STYLE_STORAGE_KEY = 'joojoo_adj_layer_styles_v1';
+const ADJ_STYLE_STORAGE_KEY = 'twinland_adj_layer_styles_v1';
 function loadAdjStyles() {
   try {
     const raw = localStorage.getItem(ADJ_STYLE_STORAGE_KEY);
@@ -1001,7 +1003,7 @@ function markParcelStatus(no, status) {
 
 // ==================== 사이드바 섹션 접기/펴기 ====================
 function setupCollapsibles() {
-  const COLLAPSE_KEY = 'joojoo_collapsed_sections';
+  const COLLAPSE_KEY = 'twinland_collapsed_sections';
   let collapsed = {};
   try { collapsed = JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}'); } catch (e) {}
 
