@@ -7,19 +7,19 @@
 }
 .heroInner { max-width: 980px; margin: 0 auto; text-align: center; }
 .eyebrow {
-  font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase;
-  color: #9bc7ff; margin-bottom: 22px;
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #9bc7ff; margin-bottom: 18px;
 }
 .title {
-  font-size: clamp(38px, 6vw, 64px);
-  font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 28px;
+  font-size: clamp(26px, 4.2vw, 44px);
+  font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 22px;
 }
 .accent {
   background: linear-gradient(120deg, #74c0fc 0%, #38d9a9 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.lead { font-size: 18px; line-height: 1.7; color: #d4e3f5; max-width: 720px; margin: 0 auto 36px; }
+.lead { font-size: 16px; line-height: 1.65; color: #d4e3f5; max-width: 680px; margin: 0 auto 32px; }
 .heroCtas { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
 .btnPrimary, .btnSecondary {
   display: inline-block; padding: 14px 28px; border-radius: 8px;
@@ -91,13 +91,21 @@
 .cta p { font-size: 16px; color: #cfe2f5; margin: 0 0 32px; }
 
 @media (max-width: 720px) {
-  .hero { padding: 80px 16px 60px; }
-  .lead { font-size: 16px; }
-  .heroCtas { gap: 10px; }
+  .hero { padding: 60px 16px 48px; }
+  .title { font-size: clamp(22px, 7vw, 30px); margin: 0 0 16px; }
+  .lead { font-size: 14px; line-height: 1.6; margin: 0 auto 24px; }
+  .eyebrow { font-size: 11px; margin-bottom: 14px; }
+  .heroCtas { gap: 10px; margin-bottom: 36px; }
   .btnPrimary, .btnSecondary { padding: 12px 22px; font-size: 14px; width: 100%; max-width: 280px; }
-  .heroStats { gap: 24px; padding-top: 24px; }
-  .statValue { font-size: 22px; }
-  .features, .workflow, .cta { padding: 60px 16px; }
+  .heroStats { gap: 20px; padding-top: 22px; }
+  .statValue { font-size: 20px; }
+  .statLabel { font-size: 12px; }
+  .features, .workflow, .cta { padding: 56px 16px; }
+  .h2 { font-size: clamp(22px, 5vw, 28px); margin: 0 0 32px; }
   .card { padding: 22px 18px; }
+  .card h3 { font-size: 16px; }
+  .card p { font-size: 13.5px; }
   .steps li { padding: 24px 18px; }
+  .steps h3 { font-size: 16px; }
+  .steps p { font-size: 13.5px; }
 }
