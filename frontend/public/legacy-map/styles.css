@@ -1886,3 +1886,72 @@ body:not(.mode-3d) .style-row-3d-only {
   .editor-table td { grid-template-columns: 60px 1fr; gap: 8px; }
   .editor-table td::before { font-size: 10px; }
 }
+
+/* ==================== 사이드바 모바일 전용 도구 섹션 ==================== */
+.mobile-tools-section {
+  display: none;     /* 데스크탑에선 숨김 */
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.mobile-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
+  padding: 11px 14px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+.mobile-tool-btn:hover, .mobile-tool-btn:active {
+  background: var(--surface-3);
+  transform: translateY(-1px);
+}
+.mobile-tool-icon { font-size: 18px; line-height: 1; }
+.mobile-tool-btn-warn {
+  border-color: rgba(239, 107, 107, 0.4);
+  color: #ffb3b3;
+}
+.mobile-tool-btn-warn:hover { background: rgba(239, 107, 107, 0.12); }
+
+/* ==================== 모바일 헤더 추가 단순화 ==================== */
+@media (max-width: 768px) {
+  .mobile-tools-section { display: flex; }
+
+  /* 헤더에서 편집/키재설정 숨김 (사이드바로 이동) */
+  header #open-editor,
+  header #reset-key,
+  header #open-projects {
+    display: none !important;
+  }
+
+  /* 베이스맵 모바일에선 핵심 4개만: 위성 / 일반 (2D/3D 는 view-toggle 별도) */
+  .basemap-toggle .basemap-btn[data-basemap="esri"],
+  .basemap-toggle .basemap-btn[data-basemap="terrain"],
+  .basemap-toggle .basemap-btn[data-basemap="osm"] {
+    display: none !important;
+  }
+
+  /* 헤더 우측: wrap 해제 + 한 줄에 깔끔하게 */
+  .header-right {
+    overflow-x: visible;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end;
+    gap: 6px !important;
+  }
+  .view-toggle .mode-btn,
+  .basemap-toggle .basemap-btn {
+    padding: 5px 10px !important;
+    font-size: 12px !important;
+    min-height: 28px;
+  }
+}

@@ -156,6 +156,23 @@
   <main>
     <aside id="sidebar">
       <button id="mobile-sidebar-close" class="mobile-sidebar-close" aria-label="닫기">✕</button>
+
+      <!-- 모바일 전용 도구 (헤더에서 옮긴 편집 + 키재설정) -->
+      <div class="mobile-tools-section">
+        <button class="mobile-tool-btn" data-proxy="open-editor" type="button">
+          <span class="mobile-tool-icon">✏️</span>
+          <span class="mobile-tool-label">필지 편집</span>
+        </button>
+        <button class="mobile-tool-btn" data-proxy="open-projects" type="button">
+          <span class="mobile-tool-icon">📁</span>
+          <span class="mobile-tool-label">프로젝트</span>
+        </button>
+        <button class="mobile-tool-btn mobile-tool-btn-warn" data-proxy="reset-key" type="button">
+          <span class="mobile-tool-icon">🔑</span>
+          <span class="mobile-tool-label">키 재설정</span>
+        </button>
+      </div>
+
       <div class="sidebar-section">
         <h3>필터</h3>
         <div class="filter-group">

@@ -85,6 +85,25 @@ function setupLegendToggle() {
   });
 }
 
+// ==================== 사이드바 모바일 도구 버튼 — 헤더 버튼 프록시 ====================
+function setupMobileTools() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  sidebar.querySelectorAll('.mobile-tool-btn[data-proxy]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.proxy;
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      // 사이드바 닫고 → 헤더 버튼 클릭 트리거
+      sidebar.classList.remove('open');
+      document.getElementById('mobile-sidebar-backdrop')?.classList.remove('open');
+      document.getElementById('mobile-sidebar-fab')?.classList.remove('hidden');
+      // 짧게 지연 후 클릭 (transition 끝난 뒤 모달 오픈)
+      setTimeout(() => target.click(), 260);
+    });
+  });
+}
+
 // ==================== 모바일 사이드바 토글 ====================
 function setupMobileSidebar() {
   const sidebar = document.getElementById('sidebar');
@@ -119,6 +138,7 @@ function init() {
   setupKeyModal();
   updateProjectHeader();
   setupMobileSidebar();
+  setupMobileTools();
   setupLegendToggle();
   buildParcelList();
   setupFilters();
