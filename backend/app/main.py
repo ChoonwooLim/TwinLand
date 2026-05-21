@@ -1,11 +1,13 @@
 from contextlib import asynccontextmanager
 import logging
+import os
 import re
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlmodel import Session, select
 
@@ -172,3 +174,35 @@ app.include_router(admin_router)
 @app.get("/health")
 def root_health():
     return {"status": "ok"}
+
+
+# ── SPA 서빙 ─────────────────────────────────────────────────
+# Docker 빌드 시 frontend dist → /app/static 로 복사됨.
+# 로컬 개발에선 디렉토리가 없으므로 mount 자체를 건너뛴다.
+STATIC_DIR = "/app/static"
+
+if os.path.isdir(STATIC_DIR) and os.path.isfile(os.path.join(STATIC_DIR, "index.html")):
+    # Vite assets 등 정적 하위 디렉토리 일괄 마운트
+    for entry in os.listdir(STATIC_DIR):
+        sub = os.path.join(STATIC_DIR, entry)
+        if os.path.isdir(sub):
+            app.mount(f"/{entry}", StaticFiles(directory=sub), name=f"static-{entry}")
+
+    @app.get("/")
+    def _serve_root():
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+    @app.exception_handler(404)
+    async def _spa_fallback(request: Request, exc):
+        p = request.url.path
+        if (request.method == "GET"
+            and not p.startswith("/api/")
+            and not p.startswith("/uploads/")
+            and not p.startswith("/docs")
+            and not p.startswith("/openapi")
+            and not p.startswith("/redoc")):
+            candidate = os.path.join(STATIC_DIR, p.lstrip("/"))
+            if os.path.isfile(candidate):
+                return FileResponse(candidate)
+            return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})

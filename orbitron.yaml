@@ -1,6 +1,7 @@
 build:
+  # Orbitron 은 deployment root 를 build context 로 사용한다 (context: 키는 무시됨).
+  # backend/Dockerfile 안의 COPY 경로는 모두 root 기준 (backend/... · frontend/...).
   dockerfile: backend/Dockerfile
-  context: backend
 
 start:
   command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips "*"
