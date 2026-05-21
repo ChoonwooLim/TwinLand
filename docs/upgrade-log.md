@@ -41,3 +41,4 @@
 | 2026-04-23 | 산사태위험등급 래스터 zonal stats API + 프론트 모달 차트 (안전 구간 % 강조) | GIS/분석 | backend/app/services/forest_raster.py, routers/forest.py, landinfo.js |
 | 2026-04-23 | 임도 최근접 거리·교차 여부 API + 프론트 섹션 | GIS/분석 | services/forest_gis.py, routers/forest.py, landinfo.js |
 | 2026-04-23 | Docker 이미지에 GDAL/GEOS/PROJ/libexpat + scripts/ 포함 → rasterio/pyogrio 런타임 보장 | 인프라/Docker | backend/Dockerfile |
+| 2026-05-21 | TwinLand 부트스트랩: JooJooLand 포크 → GIS 정체성 리네이밍 (config·env·package·api·index.html) + CLAUDE.md/README 재작성 + GitHub repo (ChoonwooLim/TwinLand) 생성 + DATA/ 샘플 보고서 4종×2필지 트래킹 | 초기화/리브랜딩 | 전체 (commit 74eb884) |

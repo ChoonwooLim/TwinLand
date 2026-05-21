@@ -17,6 +17,10 @@
 | docs | CLAUDE.md / README.md 전면 재작성 — GIS 목표, DATA 폴더 보고서 산출 로드맵, JooJooLand 잔재 정리 TODO 명시 | 완료 |
 | infra | 상위 C:\WORK/.gitignore 에 /TwinLand/ 추가 (워크스페이스 메타리포 분리) | 완료 |
 | infra | git init -b main | 완료 |
+| infra | 초기 커밋 + GitHub public repo (ChoonwooLim/TwinLand) 생성 + push | 완료 |
+| infra | 프로젝트 .claude/settings.local.json 에 MCP 서버 10종 config 작성 (harness 가 permissions 만 보존 → 글로벌 MCP 활용 권장) | 완료 |
+| infra | backend/.venv 생성 + GIS 의존성 설치 (rasterio · geopandas · shapely · pyogrio · pyproj) + app.main 임포트 검증 | 완료 |
+| infra | frontend npm install (507 packages) + `npm run build` 성공 (9.08s, 12 청크) | 완료 |
 
 ### 이번 세션 컨텍스트
 
