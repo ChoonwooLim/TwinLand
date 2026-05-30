@@ -290,8 +290,15 @@
           <label><input type="checkbox" id="toggle-google-3d" /> Google 실사 3D 건물</label>
           <label><input type="checkbox" id="toggle-osm-buildings" /> OSM 박스 건물 (전역)</label>
           <div style="display:flex;gap:4px;margin-top:6px;">
-            <input type="text" id="fly-address" placeholder="주소 → 이동 (예: 서울 강남구)" style="flex:1;min-width:0;padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:12px;" />
+            <input type="text" id="fly-address" placeholder="주소·도시명 → 이동 (예: 서울 강남구 / Tokyo)" style="flex:1;min-width:0;padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:12px;" />
             <button id="fly-btn" style="padding:4px 10px;background:#1a237e;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;">이동</button>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:6px;align-items:center;">
+            <label for="fly-lat" style="font-size:11px;color:var(--text-dim,#9aa);white-space:nowrap;">위도</label>
+            <input type="text" id="fly-lat" inputmode="decimal" placeholder="예: 37.5665" style="flex:1;min-width:0;padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:12px;" />
+            <label for="fly-lng" style="font-size:11px;color:var(--text-dim,#9aa);white-space:nowrap;">경도</label>
+            <input type="text" id="fly-lng" inputmode="decimal" placeholder="예: 126.978" style="flex:1;min-width:0;padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:12px;" />
+            <button id="fly-latlng-btn" style="padding:4px 10px;background:#1a237e;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;">이동</button>
           </div>
         </div>
         <div class="filter-group" id="group-parcel-style">
