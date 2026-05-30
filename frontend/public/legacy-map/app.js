@@ -824,13 +824,12 @@ async function loadRoadAdjacentByCadastral(key, cfg) {
 
   updateProgress(0, 1, `${cfg.label}: 인접도 계산 중... (${parcels.length}필지)`);
 
-  // 1) 대상 제외 + 인접성 필터 (빠름, 로컬 계산)
+  // 1) 대상 제외 (인접 필터 없음 — 조회 영역 내 모든 도로 표시)
   const adjacentCandidates = parcels.filter(f => {
     if (!f.properties || !f.properties.pnu) return false;
-    if (targetPnus.has(f.properties.pnu)) return false;
-    return isAdjacentToTargets(f);
+    return !targetPnus.has(f.properties.pnu);
   });
-  console.info(`[road-adj] BBOX ${parcels.length} → 인접 ${adjacentCandidates.length}건`);
+  console.info(`[road-adj] BBOX ${parcels.length} → 후보 ${adjacentCandidates.length}건 (인접 필터 제거)`);
 
   // 2) 속성 기반 '도' 매칭 먼저 시도 (API 호출 0회)
   const propMatched = adjacentCandidates.filter(f => detectRoadFromProps(f.properties));
@@ -840,8 +839,8 @@ async function loadRoadAdjacentByCadastral(key, cfg) {
 
   // 3) 속성만으로 매칭 실패 → 인접 후보에 한해서만 NED API 조회
   //    (기존 로직은 BBOX 전체를 조회해 레이트리밋 에러 발생 → 지금은 수십건 이하)
-  if (matched.length === 0 && adjacentCandidates.length > 0) {
-    console.info('[road-adj] 속성 매칭 0건 → 인접 후보만 NED 조회로 폴백');
+  if (matched.length === 0 && adjacentCandidates.length > 0 && adjacentCandidates.length <= 80) {
+    console.info('[road-adj] 속성 매칭 0건 → 후보 NED 조회로 폴백(≤80건)');
     const concurrency = 4;
     const q = [...adjacentCandidates];
     let done = 0;
@@ -880,7 +879,7 @@ async function loadRoadAdjacentByCadastral(key, cfg) {
   }
 
   renderAdjacentLayer('road', matched, cfg);
-  updateProgress(1, 1, `${cfg.label}: 인접 ${matched.length}건 표시`);
+  updateProgress(1, 1, `${cfg.label}: ${matched.length}건 표시`);
 }
 
 async function loadAdjacentLayer(type, key) {
