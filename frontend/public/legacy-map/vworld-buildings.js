@@ -97,7 +97,82 @@ window.VworldBuildings = (function () {
     else { clearEntities(); if (v) v.scene.requestRender(); }
   }
 
-  // --- 클릭 조회/카메라 새로고침/배선은 Task 4 에서 추가 ---
+  // 건물(LT_C_SPBD)+필지(LP_PA_CBND_BUBUN)+토지특성(NED) 통합 조회 → 팝업
+  async function queryInfoAt(lng, lat) {
+    const pt = 'POINT(' + lng + ' ' + lat + ')';
+    let bld = null, parcel = null;
+    try { bld = (await getFeature('LT_C_SPBD', pt, 1))[0] || null; } catch (e) {}
+    try { parcel = (await getFeature('LP_PA_CBND_BUBUN', pt, 1))[0] || null; } catch (e) {}
+
+    const pairs = [];
+    let title = '필지정보';
+    if (bld && bld.properties) {
+      const p = bld.properties;
+      const addr = [p.sido, p.sigungu, p.rd_nm, p.buld_no].filter(Boolean).join(' ');
+      title = p.buld_nm || '건물정보';
+      pairs.push(['건물명', p.buld_nm || '-']);
+      if (addr) pairs.push(['주소', addr]);
+      pairs.push(['지상층수', (p.gro_flo_co || '-') + '층']);
+      if (p.bd_mgt_sn) pairs.push(['건물관리번호', p.bd_mgt_sn]);
+    }
+    const pnu = parcel && parcel.properties && parcel.properties.pnu;
+    if (parcel && parcel.properties) {
+      if (parcel.properties.jibun) pairs.push(['지번', parcel.properties.jibun]);
+    }
+    if (pnu) {
+      try {
+        const url = '/api/vworld/ned/getLandCharacteristics?' + new URLSearchParams({
+          key: vkey(), pnu: pnu, format: 'json', domain: domain(),
+        });
+        const d = await (await fetch(url)).json();
+        const root = (d && d.landCharacteristicss) || (d && d.response);
+        let field = (root && root.field) || (root && root.fields && root.fields.field) || [];
+        const arr = Array.isArray(field) ? field : [field];
+        arr.sort(function (a, b) { return String(b.lastUpdtDt || '').localeCompare(String(a.lastUpdtDt || '')); });
+        const rec = arr[0];
+        if (rec) {
+          if (rec.lndcgrCodeNm) pairs.push(['지목', rec.lndcgrCodeNm]);
+          if (rec.ladUseSittnNm || rec.prposArea1Nm) pairs.push(['토지이용', rec.ladUseSittnNm || rec.prposArea1Nm]);
+          if (rec.pblntfPclnd) pairs.push(['공시지가', Number(rec.pblntfPclnd).toLocaleString() + '원/㎡']);
+          if (rec.lndpclAr) pairs.push(['면적', rec.lndpclAr + '㎡']);
+        }
+      } catch (e) { console.warn('[VworldBuildings] NED 실패:', e.message); }
+    }
+
+    if (!pairs.length) { window.MapPopup.hide(); return; }
+    window.MapPopup.show(title, window.MapPopup.rows(pairs));
+  }
+
+  function installClick() {
+    const v = viewer(); if (!v || clickHandler) return;
+    clickHandler = new Cesium.ScreenSpaceEventHandler(v.scene.canvas);
+    clickHandler.setInputAction(function (click) {
+      // 가상건물 그리기 모드(Phase 2)면 양보
+      if (window.VirtualBuilding && window.VirtualBuilding.isDrawing && window.VirtualBuilding.isDrawing()) return;
+      let cart = v.scene.pickPosition(click.position);
+      if (!Cesium.defined(cart)) cart = v.camera.pickEllipsoid(click.position, v.scene.globe.ellipsoid);
+      if (!Cesium.defined(cart)) return;
+      const c = Cesium.Cartographic.fromCartesian(cart);
+      queryInfoAt(Cesium.Math.toDegrees(c.longitude), Cesium.Math.toDegrees(c.latitude));
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  }
+
+  function installCameraRefresh() {
+    const v = viewer(); if (!v) return;
+    v.camera.changed.addEventListener(function () {
+      if (!enabled) return;
+      clearTimeout(moveTimer);
+      moveTimer = setTimeout(loadVisible, 400);
+    });
+  }
+
+  // viewer 준비될 때까지 폴링 후 클릭/카메라 부착
+  (function whenReady() {
+    if (viewer()) { installClick(); installCameraRefresh(); return; }
+    const t = setInterval(function () {
+      if (viewer()) { clearInterval(t); installClick(); installCameraRefresh(); }
+    }, 300);
+  })();
 
   function wire() {
     const t = document.getElementById('toggle-vworld-3d');
@@ -109,5 +184,5 @@ window.VworldBuildings = (function () {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
   else wire();
 
-  return { toggle: toggle, _getFeature: getFeature, _loadVisible: loadVisible };
+  return { toggle: toggle, queryInfoAt: queryInfoAt, _getFeature: getFeature, _loadVisible: loadVisible };
 })();
