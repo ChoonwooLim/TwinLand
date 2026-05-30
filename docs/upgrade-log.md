@@ -42,3 +42,6 @@
 | 2026-04-23 | 임도 최근접 거리·교차 여부 API + 프론트 섹션 | GIS/분석 | services/forest_gis.py, routers/forest.py, landinfo.js |
 | 2026-04-23 | Docker 이미지에 GDAL/GEOS/PROJ/libexpat + scripts/ 포함 → rasterio/pyogrio 런타임 보장 | 인프라/Docker | backend/Dockerfile |
 | 2026-05-21 | TwinLand 부트스트랩: JooJooLand 포크 → GIS 정체성 리네이밍 (config·env·package·api·index.html) + CLAUDE.md/README 재작성 + GitHub repo (ChoonwooLim/TwinLand) 생성 + DATA/ 샘플 보고서 4종×2필지 트래킹 | 초기화/리브랜딩 | 전체 (commit 74eb884) |
+| 2026-05-30 | 3D 위치 검색 — 좌표/주소/도시명 4단계 지오코딩(parseLatLng→VWorld→Cesium Ion→OSM) + 위경도 직접입력 셀 | 지도/3D | legacy-map/cesium-app.js, index.html |
+| 2026-05-30 | VWorld GIS 3D 건물(LT_C_SPBD 압출) 토글 + 건물 클릭 시 건물·필지·토지특성(공시지가/지목) 통합 팝업 + 재사용 MapPopup | 지도/3D/리포트 | legacy-map/vworld-buildings.js, map-popup.js, index.html |
+| 2026-05-30 | 가상건물 시뮬레이션 — 폴리곤 그려 층수·층고·투명도·건물명 설정→입체 압출(지형 위 배치)·localStorage 저장 | 지도/시뮬 | legacy-map/virtual-building.js, index.html |
