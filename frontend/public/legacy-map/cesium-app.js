@@ -586,6 +586,26 @@ window.CesiumApp = (function () {
       btn.dataset.wired = '1';
     }
 
+    // 위도/경도 직접 입력 셀
+    const latIn = document.getElementById('fly-lat');
+    const lngIn = document.getElementById('fly-lng');
+    const latlngBtn = document.getElementById('fly-latlng-btn');
+    if (latlngBtn && latIn && lngIn && !latlngBtn.dataset.wired) {
+      const goCoord = () => {
+        const lat = parseFloat(latIn.value), lng = parseFloat(lngIn.value);
+        if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+          alert('위도(-90~90)와 경도(-180~180)를 올바르게 입력하세요.');
+          return;
+        }
+        flyToLngLat(lng, lat, 2000);
+      };
+      latlngBtn.addEventListener('click', goCoord);
+      const onEnter = (e) => { if (e.key === 'Enter') goCoord(); };
+      latIn.addEventListener('keydown', onEnter);
+      lngIn.addEventListener('keydown', onEnter);
+      latlngBtn.dataset.wired = '1';
+    }
+
     // 필지 스타일 컨트롤
     const wireRange = (id, valueId, key, fmt) => {
       const el = document.getElementById(id);
