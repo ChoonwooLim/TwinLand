@@ -302,6 +302,25 @@
             <button id="fly-latlng-btn" style="padding:4px 10px;background:#1a237e;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;">이동</button>
           </div>
         </div>
+        <div class="filter-group" id="group-virtual-building">
+          <strong>가상건물 (시뮬레이션)</strong>
+          <div style="display:flex;gap:4px;margin-top:6px;align-items:center;">
+            <label style="font-size:11px;white-space:nowrap;">층수</label>
+            <input type="number" id="vb-floors" value="5" min="1" style="width:48px;padding:3px;font-size:12px;" />
+            <label style="font-size:11px;white-space:nowrap;">층고(m)</label>
+            <input type="number" id="vb-floor-h" value="3.3" step="0.1" min="1" style="width:52px;padding:3px;font-size:12px;" />
+          </div>
+          <div style="display:flex;gap:4px;margin-top:6px;align-items:center;">
+            <label style="font-size:11px;white-space:nowrap;">투명도</label>
+            <input type="number" id="vb-alpha" value="60" min="0" max="100" style="width:48px;padding:3px;font-size:12px;" />
+            <input type="text" id="vb-name" placeholder="건물명" style="flex:1;min-width:0;padding:3px;font-size:12px;" />
+          </div>
+          <div style="display:flex;gap:4px;margin-top:6px;">
+            <button id="vb-draw" style="flex:1;padding:4px;background:#1a237e;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:12px;">건물그리기</button>
+            <button id="vb-save" style="padding:4px 8px;background:#2e7d32;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:12px;">저장</button>
+            <button id="vb-clear" style="padding:4px 8px;background:#757575;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:12px;">전체삭제</button>
+          </div>
+        </div>
         <div class="filter-group" id="group-parcel-style">
           <strong>필지 스타일</strong>
           <div class="style-row style-row-3d-only">
@@ -368,5 +387,6 @@
   <script src="landinfo.js"></script>
   <script src="map-popup.js"></script>
   <script src="vworld-buildings.js"></script>
+  <script src="virtual-building.js"></script>
 </body>
 </html>
