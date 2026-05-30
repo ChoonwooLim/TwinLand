@@ -149,7 +149,8 @@ window.VworldBuildings = (function () {
     clickHandler.setInputAction(function (click) {
       // 가상건물 그리기 모드(Phase 2)면 양보
       if (window.VirtualBuilding && window.VirtualBuilding.isDrawing && window.VirtualBuilding.isDrawing()) return;
-      let cart = v.scene.pickPosition(click.position);
+      const ray = v.camera.getPickRay(click.position);
+      let cart = ray && v.scene.globe.pick(ray, v.scene);
       if (!Cesium.defined(cart)) cart = v.camera.pickEllipsoid(click.position, v.scene.globe.ellipsoid);
       if (!Cesium.defined(cart)) return;
       const c = Cesium.Cartographic.fromCartesian(cart);

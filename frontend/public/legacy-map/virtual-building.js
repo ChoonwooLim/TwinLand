@@ -19,19 +19,21 @@ window.VirtualBuilding = (function () {
     pointEntities.forEach(function (e) { v.entities.remove(e); }); pointEntities = [];
   }
 
-  function addVertex(lng, lat) {
+  function addVertex(lng, lat, h) {
     const v = viewer();
-    drawPositions.push({ lng: lng, lat: lat });
+    const hh = h || 0;
+    drawPositions.push({ lng: lng, lat: lat, h: hh });
     pointEntities.push(v.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(lng, lat),
+      position: Cesium.Cartesian3.fromDegrees(lng, lat, hh),
       point: { pixelSize: 8, color: Cesium.Color.YELLOW, disableDepthTestDistance: Number.POSITIVE_INFINITY },
     }));
     if (drawPositions.length >= 2) {
-      const positions = drawPositions.map(function (p) { return Cesium.Cartesian3.fromDegrees(p.lng, p.lat); });
+      const positions = drawPositions.map(function (p) { return Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.h); });
       if (previewEntity) v.entities.remove(previewEntity);
       previewEntity = v.entities.add({
         polygon: {
           hierarchy: new Cesium.PolygonHierarchy(positions),
+          perPositionHeight: true,
           material: Cesium.Color.CYAN.withAlpha(0.3),
           outline: true, outlineColor: Cesium.Color.CYAN,
         },
@@ -42,12 +44,15 @@ window.VirtualBuilding = (function () {
 
   function placeBuilding(b) {
     const v = viewer(); if (!v) return;
-    const positions = b.positions.map(function (p) { return Cesium.Cartesian3.fromDegrees(p[0], p[1]); });
+    const baseH = b.positions.reduce(function (m, p) { return Math.max(m, p[2] || 0); }, 0);
+    const top = baseH + b.floors * b.floorH;
+    const positions = b.positions.map(function (p) { return Cesium.Cartesian3.fromDegrees(p[0], p[1], p[2] || 0); });
     const ent = v.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(b.positions[0][0], b.positions[0][1], top),
       polygon: {
         hierarchy: new Cesium.PolygonHierarchy(positions),
-        height: 0,
-        extrudedHeight: b.floors * b.floorH,
+        perPositionHeight: true,
+        extrudedHeight: top,
         material: Cesium.Color.fromCssColorString('#ff7043').withAlpha(b.alpha),
         outline: true, outlineColor: Cesium.Color.fromCssColorString('#bf360c'),
       },
@@ -70,11 +75,12 @@ window.VirtualBuilding = (function () {
       drawHandler = new Cesium.ScreenSpaceEventHandler(v.scene.canvas);
       drawHandler.setInputAction(function (click) {
         if (!drawing) return;
-        let cart = v.scene.pickPosition(click.position);
+        const ray = v.camera.getPickRay(click.position);
+        let cart = ray && v.scene.globe.pick(ray, v.scene);
         if (!Cesium.defined(cart)) cart = v.camera.pickEllipsoid(click.position, v.scene.globe.ellipsoid);
         if (!Cesium.defined(cart)) return;
         const c = Cesium.Cartographic.fromCartesian(cart);
-        addVertex(Cesium.Math.toDegrees(c.longitude), Cesium.Math.toDegrees(c.latitude));
+        addVertex(Cesium.Math.toDegrees(c.longitude), Cesium.Math.toDegrees(c.latitude), c.height || 0);
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     }
   }
@@ -83,7 +89,7 @@ window.VirtualBuilding = (function () {
     const v = viewer();
     if (drawPositions.length < 3) { alert('최소 3점을 찍으세요.'); return; }
     const b = {
-      positions: drawPositions.map(function (p) { return [p.lng, p.lat]; }),
+      positions: drawPositions.map(function (p) { return [p.lng, p.lat, p.h]; }),
       floors: num('vb-floors', 5), floorH: num('vb-floor-h', 3.3),
       alpha: Math.min(1, Math.max(0, num('vb-alpha', 60) / 100)),
       name: str('vb-name') || '가상건물',
