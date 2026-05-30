@@ -460,6 +460,18 @@ window.CesiumApp = (function () {
     return null;
   }
 
+  // VWorld getcoord 는 주소뿐 아니라 건물명(structure.detail)에도 매칭되어,
+  // 한국에 동명 건물이 있는 외국 지명("맨하탄" 등)을 엉뚱한 국내 좌표로 반환할 때가 있다.
+  // 질의어의 모든 토큰이 정제주소(refined.text)에 실제로 등장할 때만 신뢰한다.
+  function vworldAddressMatches(query, refinedText) {
+    if (!refinedText) return true; // 정제주소가 없으면 기존 동작 유지(보수적)
+    const norm = (s) => (s || '').replace(/\s+/g, '');
+    const hay = norm(refinedText);
+    const tokens = String(query).trim().split(/\s+/).filter(Boolean);
+    if (!tokens.length) return false;
+    return tokens.every((t) => hay.includes(norm(t)));
+  }
+
   function flyToLngLat(lng, lat, height) {
     viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(lng, lat, height),
@@ -518,7 +530,7 @@ window.CesiumApp = (function () {
     const coord = parseLatLng(query);
     if (coord) { flyToLngLat(coord.lng, coord.lat, 2000); return; }
 
-    // 2) 한국 주소 — VWorld 지오코더
+    // 2) 한국 주소 — VWorld 지오코더 (건물명 오매칭 방지: 정제주소에 질의어가 실제 등장할 때만 신뢰)
     const key = window.VWORLD_KEY;
     if (key) {
       try {
@@ -526,12 +538,14 @@ window.CesiumApp = (function () {
         let resp = await fetch(url);
         let json = await resp.json();
         let pt = json?.response?.result?.point;
+        let refined = json?.response?.refined?.text;
         if (!pt) {
           resp = await fetch(url.replace('type=road', 'type=parcel'));
           json = await resp.json();
           pt = json?.response?.result?.point;
+          refined = json?.response?.refined?.text;
         }
-        if (pt) { flyToLngLat(parseFloat(pt.x), parseFloat(pt.y), 1500); return; }
+        if (pt && vworldAddressMatches(query, refined)) { flyToLngLat(parseFloat(pt.x), parseFloat(pt.y), 1500); return; }
       } catch (e) {
         console.warn('[Cesium] VWorld 지오코딩 실패, 전역 검색으로 전환:', e?.message || e);
       }
