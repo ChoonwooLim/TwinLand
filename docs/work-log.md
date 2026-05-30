@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-05-30 — VWorld 기능군 + 경사도분석 핸드오프
+
+### 오늘 main 반영 (라이브)
+- 3D 위치 검색(좌표/주소/도시명 4-tier) + 맨하탄 VWorld 건물명 오매칭 수정
+- VWorld GIS 3D 건물(LT_C_SPBD 압출) + 건축물정보 팝업(건물+필지+공시지가, NED)
+- 가상건물 시뮬레이션(지형 위 정확 배치, `globe.pick`)
+- 도로 오버레이를 화면 범위 조회로(인접 필터 → view bounds + 패닝 재조회)
+- 신규 모듈: `map-popup.js`, `vworld-buildings.js`, `virtual-building.js`
+
+### ▶ 다음 세션 시작점 — 경사도분석
+- 설계: `docs/superpowers/specs/2026-05-30-slope-analysis-design.md`
+- **실행 계획: `docs/superpowers/plans/2026-05-30-slope-analysis.md`** ← 여기부터 task-by-task
+- 선행조건: NGII 5m DEM 투입 — `docs/dem-ingest.md` 따라 다운로드 → `backend/data/dem/`
+- DEM 미투입이어도 코드는 완성 가능(엔드포인트 503), DEM 들어오면 즉시 동작.
+
+### 보류
+- 단지용도지역 오버레이(VWorld Data API 코드 미확인, 여주엔 산단 없어 저가치)
+- VWorld 3D 건물(LT_C_SPBD) 지형-기준 높이 보정(현재 해수면 0m 기준)
+
 ## 2026-05-21 — TwinLand 부트스트랩 (JooJooLand 포크)
 
 ### 작업 요약

@@ -1,0 +1,4 @@
+# DEM 원본(수치표고 5m)은 용량 커서 git 미추적
+*
+!.gitignore
+!README.md
