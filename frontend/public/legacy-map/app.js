@@ -810,11 +810,20 @@ function detectRoadFromProps(props) {
   return false;
 }
 
+let _roadViewSync = null;  // 도로 오버레이 화면추적 moveend 핸들러
+
+function getViewBBoxString() {
+  if (!map || !map.getBounds) return null;
+  const b = map.getBounds();
+  return `BOX(${b.getWest()},${b.getSouth()},${b.getEast()},${b.getNorth()})`;
+}
+
 async function loadRoadAdjacentByCadastral(key, cfg) {
-  const bbox = getTargetBBoxString();
-  if (!bbox) { alert('필지 로드 완료 후 다시 시도해주세요'); return; }
-  updateProgress(0, 1, `${cfg.label}: BBOX 필지 수집 중...`);
-  const parcels = await loadBBoxParcels(bbox, key);
+  const bbox = getViewBBoxString() || getTargetBBoxString();
+  if (!bbox) { alert('지도 준비 후 다시 시도해주세요'); return; }
+  updateProgress(0, 1, `${cfg.label}: 화면 범위 필지 수집 중...`);
+  // 화면 범위는 매번 달라지므로 공유 캐시 대신 직접 조회 (지오메트리 포함)
+  const parcels = await wfsQuery({ geomFilter: bbox, size: '1000', crs: 'EPSG:4326' }, key);
 
   const targetPnus = new Set();
   Object.values(polygonsById).forEach(({polygon}) => {
@@ -879,7 +888,17 @@ async function loadRoadAdjacentByCadastral(key, cfg) {
   }
 
   renderAdjacentLayer('road', matched, cfg);
-  updateProgress(1, 1, `${cfg.label}: ${matched.length}건 표시`);
+  const capNote = parcels.length >= 1000 ? ' (화면이 넓어 일부 누락 가능 — 줌인 권장)' : '';
+  updateProgress(1, 1, `${cfg.label}: ${matched.length}건 표시${capNote}`);
+
+  // 패닝/줌 시 화면 범위 재조회 (한 번만 부착)
+  if (!_roadViewSync) {
+    let _t = null;
+    _roadViewSync = () => { clearTimeout(_t); _t = setTimeout(() => {
+      if (adjacentLayerGroups['road']) loadRoadAdjacentByCadastral(key, cfg);
+    }, 600); };
+    map.on('moveend', _roadViewSync);
+  }
 }
 
 async function loadAdjacentLayer(type, key) {
@@ -972,6 +991,7 @@ const adjacentFeaturesByType = {};
 window.adjacentFeaturesByType = adjacentFeaturesByType;
 
 function renderAdjacentLayer(type, features, cfg) {
+  if (adjacentLayerGroups[type]) { map.removeLayer(adjacentLayerGroups[type]); delete adjacentLayerGroups[type]; }
   const group = L.layerGroup();
   const style = styleForAdjLayer(type);
   features.forEach(f => {
@@ -1068,6 +1088,7 @@ function removeAdjacentLayer(type) {
     delete adjacentLayerGroups[type];
   }
   delete adjacentFeaturesByType[type];
+  if (type === 'road' && _roadViewSync) { map.off('moveend', _roadViewSync); _roadViewSync = null; }
   updateLegendAdjVisibility();
   if (window.CesiumApp?.clearAdjacentLayer) {
     window.CesiumApp.clearAdjacentLayer(type);
