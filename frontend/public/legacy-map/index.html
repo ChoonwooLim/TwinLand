@@ -289,6 +289,7 @@
           <strong>3D 전용</strong>
           <label><input type="checkbox" id="toggle-google-3d" /> Google 실사 3D 건물</label>
           <label><input type="checkbox" id="toggle-osm-buildings" /> OSM 박스 건물 (전역)</label>
+          <label><input type="checkbox" id="toggle-vworld-3d" /> VWorld 건물 (입체·국내)</label>
           <div style="display:flex;gap:4px;margin-top:6px;">
             <input type="text" id="fly-address" placeholder="주소·도시명 → 이동 (예: 서울 강남구 / Tokyo)" style="flex:1;min-width:0;padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:12px;" />
             <button id="fly-btn" style="padding:4px 10px;background:#1a237e;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;">이동</button>
@@ -365,5 +366,7 @@
   <script src="cesium-app.js"></script>
   <script src="editor.js"></script>
   <script src="landinfo.js"></script>
+  <script src="map-popup.js"></script>
+  <script src="vworld-buildings.js"></script>
 </body>
 </html>
