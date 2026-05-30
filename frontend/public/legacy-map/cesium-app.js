@@ -450,32 +450,110 @@ window.CesiumApp = (function () {
     if (osmBuildings) osmBuildings.show = on;
   }
 
-  async function flyToAddress(address) {
-    if (!viewer || !address) return;
-    const key = window.VWORLD_KEY;
-    if (!key) { alert('VWorld 키 없음'); return; }
-    const url = `/api/vworld/address?service=address&request=getcoord&address=${encodeURIComponent(address)}&type=road&key=${key}&format=json`;
-    try {
-      let resp = await fetch(url);
-      let json = await resp.json();
-      let pt = json?.response?.result?.point;
-      if (!pt) {
-        const url2 = url.replace('type=road', 'type=parcel');
-        resp = await fetch(url2);
-        json = await resp.json();
-        pt = json?.response?.result?.point;
-      }
-      if (!pt) { alert(`주소 못 찾음: ${address}`); return; }
-      const lng = parseFloat(pt.x), lat = parseFloat(pt.y);
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1500),
-        orientation: { heading: 0, pitch: Cesium.Math.toRadians(-45), roll: 0 },
-        duration: 2.0,
-      });
-    } catch (e) {
-      console.error('[Cesium] flyToAddress 오류:', e);
-      alert('주소 검색 실패');
+  // "37.5665, 126.9780" / "37.5665 126.978" 형태의 위경도 입력 파싱 (위도 우선)
+  function parseLatLng(s) {
+    const m = s.match(/^\s*(-?\d{1,3}(?:\.\d+)?)\s*[,\s]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
+    if (!m) return null;
+    const a = parseFloat(m[1]), b = parseFloat(m[2]);
+    if (Math.abs(a) <= 90 && Math.abs(b) <= 180) return { lat: a, lng: b };
+    if (Math.abs(b) <= 90 && Math.abs(a) <= 180) return { lat: b, lng: a }; // 경도,위도 순 보정
+    return null;
+  }
+
+  function flyToLngLat(lng, lat, height) {
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(lng, lat, height),
+      orientation: { heading: 0, pitch: Cesium.Math.toRadians(-45), roll: 0 },
+      duration: 2.0,
+    });
+  }
+
+  // 지오코더 결과(사각형=도시/지역, Cartesian3=지점)에 맞춰 카메라 이동
+  function flyToGeocodeDestination(dest) {
+    if (dest instanceof Cesium.Rectangle) {
+      const c = Cesium.Rectangle.center(dest);
+      const sw = Cesium.Cartographic.toCartesian(Cesium.Rectangle.southwest(dest));
+      const ne = Cesium.Cartographic.toCartesian(Cesium.Rectangle.northeast(dest));
+      const diag = Cesium.Cartesian3.distance(sw, ne);
+      flyToLngLat(Cesium.Math.toDegrees(c.longitude), Cesium.Math.toDegrees(c.latitude), Math.min(200000, Math.max(2500, diag * 0.8)));
+    } else if (dest) {
+      const carto = Cesium.Cartographic.fromCartesian(dest);
+      flyToLngLat(Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), Math.max(2000, carto.height + 2000));
     }
+  }
+
+  // 전 세계 지명 검색 (도쿄/맨해튼/캘리포니아 등) — Cesium Ion 지오코더 (토큰 geocode 권한 필요)
+  let ionGeocoder = null;
+  async function ionGeocode(query) {
+    if (!window.CESIUM_ION_TOKEN) return null;
+    if (!ionGeocoder) ionGeocoder = new Cesium.IonGeocoderService({ scene: viewer.scene });
+    const results = await ionGeocoder.geocode(query, Cesium.GeocodeType.SEARCH);
+    return (results && results.length) ? results[0].destination : null;
+  }
+
+  // 전 세계 지명 폴백 — OpenStreetMap Nominatim (토큰 불필요)
+  // 대표 지점(lat/lon) 중심으로 이동하고, bbox 크기로 높이를 추정(3km~200km).
+  // (예: "도쿄"는 도쿄도 소속 태평양 섬까지 포함해 bbox 중심이 바다에 찍히므로 대표 지점 사용)
+  async function osmGeocode(query) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ko&q=${encodeURIComponent(query)}`;
+    const resp = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!resp.ok) return null;
+    const arr = await resp.json();
+    if (!arr || !arr.length) return null;
+    const r = arr[0];
+    const lat = parseFloat(r.lat), lng = parseFloat(r.lon);
+    let height = 3000;
+    if (r.boundingbox && r.boundingbox.length === 4) {
+      const [s, n, w, e] = r.boundingbox.map(parseFloat);
+      const diag = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(w, s), Cesium.Cartesian3.fromDegrees(e, n));
+      height = Math.min(200000, Math.max(3000, diag * 0.5));
+    }
+    return { lng, lat, height };
+  }
+
+  async function flyToAddress(query) {
+    if (!viewer || !query) return;
+
+    // 1) 위도/경도 직접 입력
+    const coord = parseLatLng(query);
+    if (coord) { flyToLngLat(coord.lng, coord.lat, 2000); return; }
+
+    // 2) 한국 주소 — VWorld 지오코더
+    const key = window.VWORLD_KEY;
+    if (key) {
+      try {
+        const url = `/api/vworld/address?service=address&request=getcoord&address=${encodeURIComponent(query)}&type=road&key=${key}&format=json`;
+        let resp = await fetch(url);
+        let json = await resp.json();
+        let pt = json?.response?.result?.point;
+        if (!pt) {
+          resp = await fetch(url.replace('type=road', 'type=parcel'));
+          json = await resp.json();
+          pt = json?.response?.result?.point;
+        }
+        if (pt) { flyToLngLat(parseFloat(pt.x), parseFloat(pt.y), 1500); return; }
+      } catch (e) {
+        console.warn('[Cesium] VWorld 지오코딩 실패, 전역 검색으로 전환:', e?.message || e);
+      }
+    }
+
+    // 3) 전 세계 지명 — Cesium Ion 지오코더 (토큰 geocode 권한이 있을 때)
+    try {
+      const dest = await ionGeocode(query);
+      if (dest) { flyToGeocodeDestination(dest); return; }
+    } catch (e) {
+      console.warn('[Cesium] Ion 지오코딩 실패, OSM 으로 전환:', e?.message || e);
+    }
+
+    // 4) 전 세계 지명 폴백 — OSM Nominatim (토큰 불필요)
+    try {
+      const d = await osmGeocode(query);
+      if (d) { flyToLngLat(d.lng, d.lat, d.height); return; }
+    } catch (e) {
+      console.error('[Cesium] OSM 지오코딩 오류:', e);
+    }
+
+    alert(`위치를 찾지 못했습니다: ${query}\n(예: "서울 강남구", "Tokyo", "Manhattan", 또는 "37.5665, 126.9780")`);
   }
 
   function wireControls() {
