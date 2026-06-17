@@ -40,14 +40,51 @@
         <button id="projects-close" class="editor-close-btn" title="닫기">✕</button>
       </div>
       <div class="projects-save-row">
-        <input type="text" id="projects-new-name" placeholder="새 프로젝트 이름" />
-        <button id="projects-new-blank" class="editor-btn-secondary">+ 새 프로젝트</button>
+        <input type="text" id="projects-new-name" placeholder="현재 화면을 저장할 이름" />
         <button id="projects-save-new" class="editor-btn-primary">현재 세팅을 새 프로젝트로 저장</button>
         <button id="projects-import" class="editor-btn-secondary">JSON 가져오기</button>
         <input type="file" id="projects-file-input" accept=".json" style="display:none" />
       </div>
       <div id="projects-list" class="projects-list"></div>
-      <p class="hint">• <strong>불러오기</strong>: 해당 프로젝트로 전환 (페이지 재로드) · <strong>덮어쓰기</strong>: 현재 세팅을 그 프로젝트에 저장</p>
+      <p class="hint">• <strong>불러오기</strong>: 해당 프로젝트로 전환 (페이지 재로드) · <strong>덮어쓰기</strong>: 현재 세팅을 그 프로젝트에 저장 · 새로 시작하려면 상단 <strong>✨ 새 프로젝트</strong></p>
+    </div>
+  </div>
+
+  <!-- 새 프로젝트 만들기 모달 -->
+  <div id="newproject-modal" class="modal hidden">
+    <div class="modal-content newproject-modal-content">
+      <div class="editor-header">
+        <h2>✨ 새 프로젝트 만들기</h2>
+        <button id="newproject-close" class="editor-close-btn" title="닫기">✕</button>
+      </div>
+      <div class="np-body">
+        <div class="np-field">
+          <label class="np-label" for="np-name">프로젝트 이름 <span class="np-req">*</span></label>
+          <input type="text" id="np-name" class="np-input" placeholder="예: 상교리 신규부지" autocomplete="off" />
+        </div>
+        <div class="np-field">
+          <label class="np-label" for="np-prefix">주소 prefix</label>
+          <input type="text" id="np-prefix" class="np-input" placeholder="경기도 여주시 북내면" autocomplete="off" />
+        </div>
+        <div class="np-field">
+          <label class="np-label">필지 데이터 가져오기 <span class="np-optional">(선택)</span></label>
+          <div id="np-dropzone" class="np-dropzone" tabindex="0">
+            <div class="np-dz-icon">🗺️</div>
+            <div class="np-dz-text">
+              <strong>지번도 이미지·PDF·엑셀·CSV</strong> 를 끌어다 놓거나<br>
+              <button type="button" id="np-pick" class="np-pick-btn">파일 선택</button>
+            </div>
+            <input type="file" id="np-file" accept="image/*,.pdf,.xlsx,.csv" style="display:none" />
+          </div>
+          <div id="np-status" class="np-status hidden"></div>
+          <ul id="np-preview" class="np-preview hidden"></ul>
+        </div>
+        <p class="hint">파일에서 <strong>동/리·지번</strong>을 자동 추출합니다 (지번도 이미지는 AI 비전, 1~3분 소요). 지목·면적은 생성 후 편집기의 <strong>🔍 전체 자동</strong>(VWorld)으로 채웁니다.</p>
+      </div>
+      <div class="np-actions">
+        <button id="np-create-blank" class="editor-btn-secondary">빈 프로젝트로 시작</button>
+        <button id="np-create" class="editor-btn-primary" disabled>만들기</button>
+      </div>
     </div>
   </div>
 
@@ -143,6 +180,7 @@
         <span id="progress-text">대기 중...</span>
         <div class="progress-bar"><div id="progress-bar-fill"></div></div>
       </div>
+      <button id="open-newproject" class="header-btn-accent" title="새 프로젝트 만들기">✨ 새 프로젝트</button>
       <button id="open-projects" title="프로젝트 관리">📁 <span id="active-project-label">—</span></button>
       <button id="open-editor" title="필지 편집">✏️ 편집</button>
       <button id="reset-key" title="키 재설정">🔑</button>
@@ -165,6 +203,10 @@
 
       <!-- 모바일 전용 도구 (헤더에서 옮긴 편집 + 키재설정) -->
       <div class="mobile-tools-section">
+        <button class="mobile-tool-btn" data-proxy="open-newproject" type="button">
+          <span class="mobile-tool-icon">✨</span>
+          <span class="mobile-tool-label">새 프로젝트</span>
+        </button>
         <button class="mobile-tool-btn" data-proxy="open-editor" type="button">
           <span class="mobile-tool-icon">✏️</span>
           <span class="mobile-tool-label">필지 편집</span>
@@ -384,6 +426,7 @@
   <script src="/api/vworld/config.js" onerror="console.warn('/api/vworld/config.js 없음 — 모달로 키 입력')"></script>
   <script src="parcels.js"></script>
   <script src="projects.js"></script>
+  <script src="newproject.js"></script>
   <script src="app.js"></script>
   <script src="cesium-app.js"></script>
   <script src="editor.js"></script>

@@ -60,27 +60,34 @@
     return all[clean];
   }
 
-  function createBlankProject(name) {
+  // 새 프로젝트 생성 (parcels 비우면 빈 프로젝트). 생성 후 해당 프로젝트로 전환(reload).
+  function createProject(name, prefix, parcels) {
     const clean = String(name || '').trim();
     if (!clean) throw new Error('프로젝트 이름이 비어있음');
     const all = readAll();
     if (all[clean]) throw new Error(`이미 있음: ${clean}`);
+    const list = Array.isArray(parcels) ? parcels : [];
+    const pfx = String(prefix || '').trim() || window.DEFAULT_ADDRESS_PREFIX || '';
     const now = new Date().toISOString();
     all[clean] = {
       name: clean,
-      parcels: [],
-      prefix: window.DEFAULT_ADDRESS_PREFIX || '',
+      parcels: list,
+      prefix: pfx,
       style: null,
       createdAt: now,
       updatedAt: now,
     };
     writeAll(all);
     setActive(clean);
-    // legacy 키를 빈 값으로 강제 기록 후 재로드 → 빈 표로 시작
-    localStorage.setItem(PARCELS_KEY, JSON.stringify([]));
-    localStorage.setItem(PREFIX_KEY, all[clean].prefix);
+    // legacy 키를 새 값으로 강제 기록 후 재로드 → 빈 배열이라도 그대로 반영
+    localStorage.setItem(PARCELS_KEY, JSON.stringify(list));
+    localStorage.setItem(PREFIX_KEY, pfx);
     localStorage.removeItem(STYLE_KEY);
     location.reload();
+  }
+
+  function createBlankProject(name) {
+    return createProject(name, '', []);
   }
 
   function loadProject(name) {
@@ -222,18 +229,6 @@
       }
     });
 
-    const newBlankBtn = document.getElementById('projects-new-blank');
-    if (newBlankBtn) newBlankBtn.addEventListener('click', () => {
-      const input = document.getElementById('projects-new-name');
-      const name = (input.value || '').trim();
-      if (!name) return alert('이름 입력 필요');
-      try {
-        createBlankProject(name);
-      } catch (e) {
-        alert(e.message);
-      }
-    });
-
     const importBtn = document.getElementById('projects-import');
     const fileInput = document.getElementById('projects-file-input');
     if (importBtn && fileInput) {
@@ -328,5 +323,5 @@
     wireEvents();
   });
 
-  window.ProjectStore = { list: listProjects, save: saveProject, load: loadProject, remove: deleteProject, getActive };
+  window.ProjectStore = { list: listProjects, save: saveProject, load: loadProject, remove: deleteProject, getActive, create: createProject, exists: (n) => !!readAll()[String(n || '').trim()] };
 })();
