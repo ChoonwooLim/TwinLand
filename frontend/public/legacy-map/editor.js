@@ -267,6 +267,62 @@
     fileInput.value = '';
   });
 
+  // ===== 파일에서 지번 자동 추출 (이미지/PDF/엑셀/CSV) =====
+  const extractBtn = document.getElementById('editor-file-import');
+  const extractInput = document.getElementById('editor-extract-input');
+  if (extractBtn && extractInput) {
+    extractBtn.addEventListener('click', () => extractInput.click());
+    extractInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const orig = extractBtn.textContent;
+      extractBtn.disabled = true;
+      extractBtn.textContent = '⏳ 추출 중... (이미지는 1~3분)';
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch('/api/ai/extract-parcels', { method: 'POST', body: fd });
+        if (!res.ok) {
+          const detail = await res.json().catch(() => ({}));
+          throw new Error(detail.detail || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        const extracted = (data.parcels || []).map((p, i) => ({
+          no: i + 1,
+          location: p.location || '',
+          lot: p.lot || '',
+          category: '전',
+          area_m2: 0,
+          area_pyeong: 0,
+          owner: '',
+          memo: '',
+        }));
+        if (extracted.length === 0) {
+          alert('지번을 찾지 못했습니다.' + (data.warnings?.length ? '\n' + data.warnings.join('\n') : ''));
+          return;
+        }
+        // 빈 표면 교체, 기존 행 있으면 추가/교체 선택
+        if (rows.length > 0) {
+          const add = confirm(`기존 ${rows.length}행이 있습니다.\n확인=뒤에 추가 / 취소=교체`);
+          rows = add ? rows.concat(extracted) : extracted;
+        } else {
+          rows = extracted;
+        }
+        rows.forEach((r, i) => { r.no = i + 1; });
+        if (data.prefix && !prefixInput.value.trim()) prefixInput.value = data.prefix;
+        render();
+        const warn = data.warnings?.length ? '\n⚠ ' + data.warnings.join('\n⚠ ') : '';
+        alert(`${extracted.length}개 지번 불러옴.\n지목·면적은 "🔍 전체 자동"으로 VWorld 에서 채우세요.${warn}`);
+      } catch (err) {
+        alert('파일 추출 실패: ' + err.message);
+      } finally {
+        extractBtn.disabled = false;
+        extractBtn.textContent = orig;
+        extractInput.value = '';
+      }
+    });
+  }
+
   // 배경 클릭으로 닫기
   modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
 })();
