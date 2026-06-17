@@ -41,6 +41,7 @@
       </div>
       <div class="projects-save-row">
         <input type="text" id="projects-new-name" placeholder="새 프로젝트 이름" />
+        <button id="projects-new-blank" class="editor-btn-secondary">+ 새 프로젝트</button>
         <button id="projects-save-new" class="editor-btn-primary">현재 세팅을 새 프로젝트로 저장</button>
         <button id="projects-import" class="editor-btn-secondary">JSON 가져오기</button>
         <input type="file" id="projects-file-input" accept=".json" style="display:none" />
@@ -81,6 +82,8 @@
         </table>
       </div>
       <div class="editor-actions">
+        <button id="editor-file-import" class="editor-btn-primary" title="이미지·PDF·엑셀/CSV 에서 지번 자동 추출">📄 파일에서 가져오기</button>
+        <input type="file" id="editor-extract-input" accept="image/*,.pdf,.xlsx,.csv" style="display:none" />
         <button id="editor-add-row" class="editor-btn-secondary">+ 행 추가</button>
         <button id="editor-autofill-all" class="editor-btn-primary" title="모든 행의 지목·면적을 VWorld 에서 일괄 조회">🔍 전체 자동</button>
         <button id="editor-import" class="editor-btn-secondary">JSON 가져오기</button>

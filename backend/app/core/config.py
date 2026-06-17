@@ -43,6 +43,25 @@ class Settings(BaseSettings):
     openclaw_model_agent: str = "openai-codex/gpt-5.4"
     openclaw_model_vision: str = "anthropic/claude-sonnet-4-6"
 
+    # === OpenClaw v3 게이트웨이 (필지 자동 입력 — 이미지 스캔) ===
+    # 18789 는 게이트웨이 호스트 loopback 전용. LAN 외부(백엔드)에서는 18790 사용.
+    openclaw_v3_ws_url: str = "ws://192.168.219.117:18790"
+    # 게이트웨이 인증 토큰 (Orbitron secret / 로컬 .env). Git 금지.
+    openclaw_token: str = ""
+    # 이미지 스캔에 사용할 CLI 에이전트 (Claude 구독 플랜 → Opus, 비전 가능).
+    openclaw_agent: str = "claude-max"
+    # 자체 생성 device 신원 보관 경로 (Ed25519, 자동 생성, gitignore).
+    openclaw_device_path: str = "./.openclaw_device.json"
+
+    # === Ollama 비전 (이미지 스캔 → 지번 추출) ===
+    # OpenClaw 게이트웨이는 원격 비전 미지원(image.describe=local 전용)이라
+    # twinverse-ai LAN Ollama(RTX 3090)를 직접 호출. API 키 없음·과금 0원.
+    ollama_url: str = "http://192.168.219.117:11434"
+    ollama_vision_model: str = "gemma4:26b"
+    ollama_timeout: float = 300.0
+    # 비전 전송 전 이미지 다운스케일 한 변 최대 픽셀(속도/정확도 균형).
+    vision_max_side: int = 1568
+
     ue5_signaling_url: str = "ws://192.168.219.117:8888"
     ue5_pixel_streamer_url: str = "http://192.168.219.117:8080"
 
