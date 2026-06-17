@@ -304,11 +304,17 @@
         // 빈 표면 교체, 기존 행 있으면 추가/교체 선택
         if (rows.length > 0) {
           const add = confirm(`기존 ${rows.length}행이 있습니다.\n확인=뒤에 추가 / 취소=교체`);
-          rows = add ? rows.concat(extracted) : extracted;
+          if (add) {
+            // 기존 행 번호는 보존, 추가분만 이어서 번호 부여
+            const base = rows.length;
+            extracted.forEach((r, i) => { r.no = base + i + 1; });
+            rows = rows.concat(extracted);
+          } else {
+            rows = extracted;
+          }
         } else {
           rows = extracted;
         }
-        rows.forEach((r, i) => { r.no = i + 1; });
         if (data.prefix && !prefixInput.value.trim()) prefixInput.value = data.prefix;
         render();
         const warn = data.warnings?.length ? '\n⚠ ' + data.warnings.join('\n⚠ ') : '';

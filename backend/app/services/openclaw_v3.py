@@ -115,7 +115,7 @@ class OpenClawV3:
         await self.close()
 
     async def connect(self, timeout: float = 15.0):
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         self._challenge = loop.create_future()
         try:
             self._ws = await websockets.connect(
@@ -145,12 +145,18 @@ class OpenClawV3:
     async def close(self):
         if self._reader:
             self._reader.cancel()
+            self._reader = None
         if self._ws:
             await self._ws.close()
+            self._ws = None
         for fut in self._pending.values():
             if not fut.done():
                 fut.set_exception(OpenClawError("연결 종료"))
         self._pending.clear()
+        for chat in self._chats.values():
+            if not chat["future"].done():
+                chat["future"].set_exception(OpenClawError("연결 종료"))
+        self._chats.clear()
 
     async def _read_loop(self):
         try:
@@ -175,6 +181,9 @@ class OpenClawV3:
             for fut in self._pending.values():
                 if not fut.done():
                     fut.set_exception(OpenClawError(f"reader 종료: {e}"))
+            for chat in self._chats.values():
+                if not chat["future"].done():
+                    chat["future"].set_exception(OpenClawError(f"reader 종료: {e}"))
 
     def _on_event(self, msg: dict):
         event = msg.get("event")
@@ -214,7 +223,7 @@ class OpenClawV3:
 
     async def rpc(self, method: str, params: dict, timeout: float = 30.0) -> dict:
         rid = str(uuid.uuid4())
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         fut = loop.create_future()
         self._pending[rid] = fut
         await self._ws.send(json.dumps({"type": "req", "id": rid, "method": method, "params": params}))
@@ -245,7 +254,7 @@ class OpenClawV3:
 
     async def chat_send(self, agent_id: str, session: str, message: str, timeout: float = 180.0) -> str:
         sk = session if session.startswith("agent:") else f"agent:{agent_id}:{session}"
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         fut = loop.create_future()
         self._chats[sk] = {"buf": [], "future": fut}
         try:

@@ -41,7 +41,8 @@ _IMAGE = {".png", ".jpg", ".jpeg", ".webp"}
 
 @router.post("/extract-parcels")
 async def extract_parcels(file: UploadFile = File(...)):
-    data = await file.read()
+    # 크기 제한을 초과하는 분량은 버퍼링하지 않도록 한도+1 까지만 읽음.
+    data = await file.read(MAX_UPLOAD + 1)
     if len(data) > MAX_UPLOAD:
         raise HTTPException(status_code=413, detail="파일이 너무 큼 (최대 10MB)")
     ext = os.path.splitext(file.filename or "")[1].lower()

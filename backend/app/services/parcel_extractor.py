@@ -101,14 +101,21 @@ def extract_tabular(data: bytes, ext: str) -> list[dict]:
     return _rows_from_table(table)
 
 
+def _looks_like_lot(lot: str) -> bool:
+    """행번호·페이지번호 같은 단독 1~2자리 숫자를 지번 후보에서 제외.
+    산 접두사·부번(하이픈)·3자리 이상 본번만 지번으로 인정(텍스트 PDF 오탐 완화)."""
+    if lot.startswith("산") or "-" in lot:
+        return True
+    return len(lot) >= 3
+
+
 def extract_lots_from_text(text: str) -> list[dict]:
     """텍스트(텍스트PDF 추출 결과)에서 지번 후보를 정규식으로 수집(중복 제거, 순서 유지)."""
     seen = set()
     out = []
     for m in LOT_RE.finditer(text or ""):
         lot = normalize_lot(m.group(0))
-        # 단독 1~2자리 숫자는 NO(행번호)일 확률 높지만, 보수적으로 유지하되 중복만 제거
-        if lot and lot not in seen:
+        if lot and lot not in seen and _looks_like_lot(lot):
             seen.add(lot)
             out.append({"location": "", "lot": lot})
     return out
