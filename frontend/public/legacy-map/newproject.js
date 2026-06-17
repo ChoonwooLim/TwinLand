@@ -88,9 +88,12 @@ window.TwinLandExtract = async function (file, onStatus) {
   function renderPreview(rows) {
     if (!rows.length) { previewEl.className = 'np-preview hidden'; previewEl.innerHTML = ''; return; }
     const max = 12;
-    const items = rows.slice(0, max).map(r =>
-      `<li>${escapeHtml((r.location || '') + ' ' + r.lot)}</li>`
-    ).join('');
+    const items = rows.slice(0, max).map(r => {
+      const attr = [r.category, r.area_m2 ? Number(r.area_m2).toLocaleString() + '㎡' : '']
+        .filter(Boolean).join(' ');
+      const tail = attr ? ` · ${escapeHtml(attr)}` : '';
+      return `<li>${escapeHtml((r.location || '') + ' ' + r.lot)}${tail}</li>`;
+    }).join('');
     const more = rows.length > max ? `<li class="np-preview-more">… 외 ${rows.length - max}개</li>` : '';
     previewEl.innerHTML = items + more;
     previewEl.className = 'np-preview';
@@ -116,7 +119,13 @@ window.TwinLandExtract = async function (file, onStatus) {
         setStatus('warn', '지번을 찾지 못했습니다.' + (data.warnings?.length ? ' ' + data.warnings.join(' ') : ''));
         return;
       }
-      extracted = rows.map(p => ({ location: p.location || '', lot: p.lot }));
+      extracted = rows.map(p => ({
+        location: p.location || '',
+        lot: p.lot,
+        category: p.category || '',
+        area_m2: Number(p.area_m2) || 0,
+        owner: p.owner || '',
+      }));
       const warn = data.warnings?.length ? ' ⚠ ' + data.warnings.join(' ') : '';
       setStatus('ok', `✅ ${extracted.length}개 지번 추출됨. "만들기"로 프로젝트 생성.${warn}`);
       renderPreview(extracted);
@@ -129,16 +138,19 @@ window.TwinLandExtract = async function (file, onStatus) {
   }
 
   function toFullParcels(list) {
-    return list.map((p, i) => ({
-      no: i + 1,
-      location: p.location || '',
-      lot: p.lot || '',
-      category: '전',
-      area_m2: 0,
-      area_pyeong: 0,
-      owner: '',
-      memo: '',
-    }));
+    return list.map((p, i) => {
+      const m2 = Number(p.area_m2) || 0;
+      return {
+        no: i + 1,
+        location: p.location || '',
+        lot: p.lot || '',
+        category: p.category || '전',
+        area_m2: m2,
+        area_pyeong: Math.round(m2 * 0.3025),
+        owner: p.owner || '',
+        memo: '',
+      };
+    });
   }
 
   function create(withParcels) {

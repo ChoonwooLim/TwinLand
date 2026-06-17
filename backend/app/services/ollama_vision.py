@@ -19,11 +19,16 @@ from . import parcel_extractor as pe
 settings = get_settings()
 
 VISION_PROMPT = (
-    "이 이미지는 한국 지적도/지번 목록/토지대장이다. 실제로 보이는 필지의 "
-    "동/리 이름과 지번만 정확히 추출하라. 지목·면적·소유자는 제외하고, "
-    "이미지에 없는 번호를 지어내지 마라. 산(임야) 지번은 '산31'처럼 '산' 접두사를 유지하라. "
-    '오직 JSON 배열로만 답하라: [{"location":"리이름","lot":"지번"}]. '
-    "지번은 '384-18' 또는 '산31' 형식. 설명·코드펜스 없이 JSON 만."
+    "이 이미지는 한국 토지 현황표/지적도/토지대장이다. 표의 각 데이터 행에서 다음을 정확히 추출하라:\n"
+    "- location: 동/리 이름 (예: 금왕리). 따옴표(\")나 '〃' 같은 동일 표시는 바로 윗 행과 같은 값으로 채워라.\n"
+    "- lot: 지번 (예: 104-1, 산31). 산(임야)은 '산' 접두사 유지.\n"
+    "- category: 지목 (전·답·임야·대·도로·하천·구거·유지 등). 면적 칸 앞에 붙은 지목 글자.\n"
+    "- area_m2: 면적 숫자만, ㎡ 기준. 콤마 제거. 예: '2,044m2'→2044, '도로 48m2'→48.\n"
+    "- owner: 소유자 (있을 때만, 없으면 빈 문자열).\n"
+    "보이지 않는 값은 빈 문자열 또는 0. 이미지에 없는 행을 지어내지 말고, '합계/계' 행은 제외하라.\n"
+    '오직 JSON 배열로만 답하라: '
+    '[{"location":"금왕리","lot":"104-1","category":"도로","area_m2":48,"owner":""}]. '
+    "설명·코드펜스 없이 JSON 만."
 )
 
 
@@ -43,8 +48,8 @@ def downscale_to_jpeg_b64(data: bytes, max_side: int | None = None, quality: int
     return base64.b64encode(buf.getvalue()).decode()
 
 
-def parse_lots(content: str) -> list[dict]:
-    """LLM 응답 텍스트 → [{location, lot}] (관대 파싱 + 정규화)."""
+def parse_parcels(content: str) -> list[dict]:
+    """LLM 응답 텍스트 → [{location, lot, category, area_m2, owner}] (관대 파싱 + 정규화)."""
     parsed = pe.lenient_json(content)
     if not isinstance(parsed, list):
         return []
@@ -57,8 +62,18 @@ def parse_lots(content: str) -> list[dict]:
         if not lot or lot in seen:
             continue
         seen.add(lot)
-        out.append({"location": str(item.get("location", "")).strip(), "lot": lot})
+        out.append({
+            "location": str(item.get("location", "")).strip(),
+            "lot": lot,
+            "category": str(item.get("category", "")).strip(),
+            "area_m2": pe.parse_area_m2(item.get("area_m2")),
+            "owner": str(item.get("owner", "")).strip(),
+        })
     return out
+
+
+# 하위 호환 별칭
+parse_lots = parse_parcels
 
 
 async def extract_lots_from_image(data: bytes) -> list[dict]:

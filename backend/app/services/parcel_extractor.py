@@ -54,6 +54,16 @@ class ExtractError(ValueError):
 # 헤더 후보 (소문자/공백제거 비교)
 _LOT_HEADERS = {"지번", "지번주소", "번지", "지번번호", "lot", "jibun", "본번부번"}
 _LOC_HEADERS = {"동리", "동/리", "리", "소재지", "법정동", "location", "동", "읍면동"}
+_CAT_HEADERS = {"지목", "지목명", "category", "용도"}
+_AREA_HEADERS = {"면적", "면적㎡", "면적(㎡)", "면적m2", "면적(m2)", "area", "area_m2", "공부면적"}
+_OWNER_HEADERS = {"소유자", "소유주", "소유자명", "owner", "성명"}
+
+# "도로", "임야" 등 면적 셀 앞에 붙는 지목 글자 (면적칸에 지목+면적이 합쳐진 표 대응)
+_JIMOK_WORDS = {
+    "전", "답", "과수원", "목장용지", "임야", "광천지", "염전", "대", "공장용지", "학교용지",
+    "주차장", "주유소용지", "창고용지", "도로", "철도용지", "제방", "하천", "구거", "유지",
+    "양어장", "수도용지", "공원", "체육용지", "유원지", "종교용지", "사적지", "묘지", "잡종지", "대지",
+}
 
 
 def _pick_col(header: list[str], candidates: set[str]) -> int:
@@ -64,6 +74,31 @@ def _pick_col(header: list[str], candidates: set[str]) -> int:
     return -1
 
 
+def parse_area_m2(val) -> float:
+    """면적 값 → ㎡ 숫자. '2,044m2'·'48㎡'·48.0 등 허용. 실패 시 0."""
+    if isinstance(val, (int, float)):
+        return float(val)
+    s = str(val or "")
+    m = re.search(r"[\d,]+(?:\.\d+)?", s)
+    if not m:
+        return 0.0
+    try:
+        return float(m.group(0).replace(",", ""))
+    except ValueError:
+        return 0.0
+
+
+def _split_cat_area(cell: str) -> tuple[str, float]:
+    """'도로 48m2' 처럼 지목+면적이 합쳐진 셀을 (지목, 면적) 으로 분리."""
+    s = str(cell or "").strip()
+    cat = ""
+    for w in s.split():
+        if w in _JIMOK_WORDS:
+            cat = w
+            break
+    return cat, parse_area_m2(s)
+
+
 def _rows_from_table(table: list[list[str]]) -> list[dict]:
     if not table:
         raise ExtractError("빈 표")
@@ -72,6 +107,13 @@ def _rows_from_table(table: list[list[str]]) -> list[dict]:
     if lot_i == -1:
         raise ExtractError("지번 컬럼을 찾지 못함 (헤더: %s)" % header)
     loc_i = _pick_col(header, _LOC_HEADERS)
+    cat_i = _pick_col(header, _CAT_HEADERS)
+    area_i = _pick_col(header, _AREA_HEADERS)
+    owner_i = _pick_col(header, _OWNER_HEADERS)
+
+    def cell(row, i):
+        return str(row[i] or "").strip() if 0 <= i < len(row) else ""
+
     out = []
     for raw in table[1:]:
         if lot_i >= len(raw):
@@ -79,10 +121,20 @@ def _rows_from_table(table: list[list[str]]) -> list[dict]:
         lot = normalize_lot(str(raw[lot_i] or ""))
         if not lot:
             continue
-        loc = ""
-        if loc_i != -1 and loc_i < len(raw):
-            loc = str(raw[loc_i] or "").strip()
-        out.append({"location": loc, "lot": lot})
+        category = cell(raw, cat_i)
+        area_m2 = parse_area_m2(cell(raw, area_i)) if area_i != -1 else 0.0
+        # 면적 칸에 '도로 48m2' 처럼 지목이 섞여 있고 별도 지목칸이 없으면 분리
+        if area_i != -1 and (not category or area_m2 == 0):
+            sc, sa = _split_cat_area(cell(raw, area_i))
+            category = category or sc
+            area_m2 = area_m2 or sa
+        out.append({
+            "location": cell(raw, loc_i),
+            "lot": lot,
+            "category": category,
+            "area_m2": area_m2,
+            "owner": cell(raw, owner_i),
+        })
     return out
 
 

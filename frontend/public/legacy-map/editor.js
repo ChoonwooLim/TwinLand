@@ -282,16 +282,19 @@
         const data = await window.TwinLandExtract(file, (sec) => {
           extractBtn.textContent = `⏳ AI 분석 중… ${sec}초`;
         });
-        const extracted = (data.parcels || []).map((p, i) => ({
-          no: i + 1,
-          location: p.location || '',
-          lot: p.lot || '',
-          category: '전',
-          area_m2: 0,
-          area_pyeong: 0,
-          owner: '',
-          memo: '',
-        }));
+        const extracted = (data.parcels || []).map((p, i) => {
+          const m2 = Number(p.area_m2) || 0;
+          return {
+            no: i + 1,
+            location: p.location || '',
+            lot: p.lot || '',
+            category: p.category || '전',
+            area_m2: m2,
+            area_pyeong: Math.round(m2 * 0.3025),
+            owner: p.owner || '',
+            memo: '',
+          };
+        });
         if (extracted.length === 0) {
           alert('지번을 찾지 못했습니다.' + (data.warnings?.length ? '\n' + data.warnings.join('\n') : ''));
           return;
@@ -313,7 +316,7 @@
         if (data.prefix && !prefixInput.value.trim()) prefixInput.value = data.prefix;
         render();
         const warn = data.warnings?.length ? '\n⚠ ' + data.warnings.join('\n⚠ ') : '';
-        alert(`${extracted.length}개 지번 불러옴.\n지목·면적은 "🔍 전체 자동"으로 VWorld 에서 채우세요.${warn}`);
+        alert(`${extracted.length}개 필지 불러옴.\n비어있는 지목·면적은 "🔍 전체 자동"(VWorld)으로 보완하세요.${warn}`);
       } catch (err) {
         alert('파일 추출 실패: ' + err.message);
       } finally {

@@ -23,16 +23,37 @@ def test_extract_tabular_csv_maps_headers():
     csv_bytes = "동리,지번,지목\n상교리,384-18,임야\n상교리,385,전\n".encode("utf-8")
     rows = pe.extract_tabular(csv_bytes, "csv")
     assert rows == [
-        {"location": "상교리", "lot": "384-18"},
-        {"location": "상교리", "lot": "385"},
+        {"location": "상교리", "lot": "384-18", "category": "임야", "area_m2": 0.0, "owner": ""},
+        {"location": "상교리", "lot": "385", "category": "전", "area_m2": 0.0, "owner": ""},
     ]
+
+def test_extract_tabular_full_attrs():
+    csv_bytes = "소재지,지번,지목,면적,소유자\n금왕리,104-1,도로,48,홍길동\n금왕리,38,전,\"2,044\",\n".encode("utf-8")
+    rows = pe.extract_tabular(csv_bytes, "csv")
+    assert rows == [
+        {"location": "금왕리", "lot": "104-1", "category": "도로", "area_m2": 48.0, "owner": "홍길동"},
+        {"location": "금왕리", "lot": "38", "category": "전", "area_m2": 2044.0, "owner": ""},
+    ]
+
+def test_extract_tabular_combined_cat_area_cell():
+    # 면적 칸에 '도로 48m2' 처럼 지목+면적이 합쳐진 경우 분리
+    csv_bytes = "지번,면적\n104-1,도로 48m2\n38,답 289m2\n".encode("utf-8")
+    rows = pe.extract_tabular(csv_bytes, "csv")
+    assert rows[0]["category"] == "도로" and rows[0]["area_m2"] == 48.0
+    assert rows[1]["category"] == "답" and rows[1]["area_m2"] == 289.0
+
+def test_parse_area_m2():
+    assert pe.parse_area_m2("2,044m2") == 2044.0
+    assert pe.parse_area_m2("48㎡") == 48.0
+    assert pe.parse_area_m2(593) == 593.0
+    assert pe.parse_area_m2("없음") == 0.0
 
 def test_extract_tabular_csv_lot_only():
     csv_bytes = "번지\n452-1\n산29\n".encode("utf-8")
     rows = pe.extract_tabular(csv_bytes, "csv")
     assert rows == [
-        {"location": "", "lot": "452-1"},
-        {"location": "", "lot": "산29"},
+        {"location": "", "lot": "452-1", "category": "", "area_m2": 0.0, "owner": ""},
+        {"location": "", "lot": "산29", "category": "", "area_m2": 0.0, "owner": ""},
     ]
 
 def test_extract_tabular_csv_skips_blank_lot():
@@ -61,25 +82,25 @@ def test_extract_lots_from_text_dedup():
     assert [r["lot"] for r in rows] == ["385"]
 
 
-# === ollama_vision.parse_lots (네트워크 없음) ===
+# === ollama_vision.parse_parcels (네트워크 없음) ===
 from app.services import ollama_vision as ov
 
 
-def test_ov_parse_lots_strips_fence_and_normalizes():
-    raw = '```json\n[{"location":"상교리","lot":"산 31"},{"location":"상교리","lot":"384-18"}]\n```'
-    assert ov.parse_lots(raw) == [
-        {"location": "상교리", "lot": "산31"},
-        {"location": "상교리", "lot": "384-18"},
+def test_ov_parse_parcels_full_fields():
+    raw = '```json\n[{"location":"금왕리","lot":"104-1","category":"도로","area_m2":"48","owner":""},{"location":"금왕리","lot":"38","category":"전","area_m2":"2,044","owner":"홍길동"}]\n```'
+    assert ov.parse_parcels(raw) == [
+        {"location": "금왕리", "lot": "104-1", "category": "도로", "area_m2": 48.0, "owner": ""},
+        {"location": "금왕리", "lot": "38", "category": "전", "area_m2": 2044.0, "owner": "홍길동"},
     ]
 
 
-def test_ov_parse_lots_dedup_and_skip_blank():
+def test_ov_parse_parcels_dedup_and_skip_blank():
     raw = '[{"lot":"385"},{"lot":"385"},{"lot":""},{"location":"리","lot":"452"}]'
-    assert ov.parse_lots(raw) == [
-        {"location": "", "lot": "385"},
-        {"location": "리", "lot": "452"},
+    assert ov.parse_parcels(raw) == [
+        {"location": "", "lot": "385", "category": "", "area_m2": 0.0, "owner": ""},
+        {"location": "리", "lot": "452", "category": "", "area_m2": 0.0, "owner": ""},
     ]
 
 
-def test_ov_parse_lots_garbage_returns_empty():
-    assert ov.parse_lots("죄송하지만 추출할 수 없습니다") == []
+def test_ov_parse_parcels_garbage_returns_empty():
+    assert ov.parse_parcels("죄송하지만 추출할 수 없습니다") == []
