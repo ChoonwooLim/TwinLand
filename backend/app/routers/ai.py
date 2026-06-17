@@ -3,6 +3,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, UploadFile, File,
 from pydantic import BaseModel
 from ..services.openclaw_ws import stream_chat, OpenClawError
 from ..services import parcel_extractor as pe
+from ..services import ollama_vision as ov
 from ..core.config import get_settings
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
@@ -54,14 +55,27 @@ async def extract_parcels(file: UploadFile = File(...)):
         if ext == ".pdf":
             rows, scanned = pe.extract_text_pdf(data)
             if scanned:
-                # Phase 2 에서 비전 변환; 그 전까지는 안내
-                return {"prefix": None, "parcels": [], "source": "pdf",
-                        "warnings": ["스캔 PDF 로 보임 — 이미지로 변환해 업로드하세요"]}
+                # 스캔 PDF: 첫 페이지를 이미지로 변환해 비전 추출 (poppler 없으면 안내).
+                png = pe.pdf_first_page_png(data)
+                if png is None:
+                    return {"prefix": None, "parcels": [], "source": "pdf",
+                            "warnings": ["스캔 PDF — 변환 도구(poppler) 없음. 이미지로 변환해 업로드하세요"]}
+                try:
+                    rows = await ov.extract_lots_from_image(png)
+                except ov.OllamaVisionError as e:
+                    raise HTTPException(status_code=502, detail=f"AI 비전 추출 실패: {e}")
+                return {"prefix": None, "parcels": rows, "source": "pdf-vision",
+                        "warnings": [] if rows else ["스캔 PDF 에서 지번을 찾지 못함"]}
             return {"prefix": None, "parcels": rows, "source": "pdf", "warnings": warnings}
 
         if ext in _IMAGE:
-            # Phase 2 에서 구현 (Task 7). 그 전까지는 501.
-            raise HTTPException(status_code=501, detail="이미지 추출은 준비 중")
+            try:
+                rows = await ov.extract_lots_from_image(data)
+            except ov.OllamaVisionError as e:
+                raise HTTPException(status_code=502, detail=f"AI 비전 추출 실패: {e}")
+            if not rows:
+                warnings.append("이미지에서 지번을 찾지 못함")
+            return {"prefix": None, "parcels": rows, "source": "vision", "warnings": warnings}
 
         raise HTTPException(status_code=415, detail=f"지원하지 않는 파일 형식: {ext or '알수없음'}")
     except pe.ExtractError as e:

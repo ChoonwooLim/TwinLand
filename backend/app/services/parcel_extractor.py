@@ -131,3 +131,20 @@ def extract_text_pdf(data: bytes) -> tuple[list[dict], bool]:
     if not text:
         return [], True
     return extract_lots_from_text(text), False
+
+
+def pdf_first_page_png(data: bytes) -> bytes | None:
+    """스캔 PDF 첫 페이지를 PNG 바이트로. pdf2image/poppler 부재 시 None."""
+    try:
+        from pdf2image import convert_from_bytes
+    except ImportError:
+        return None
+    try:
+        images = convert_from_bytes(data, first_page=1, last_page=1, dpi=200)
+    except Exception:
+        return None
+    if not images:
+        return None
+    buf = io.BytesIO()
+    images[0].save(buf, format="PNG")
+    return buf.getvalue()

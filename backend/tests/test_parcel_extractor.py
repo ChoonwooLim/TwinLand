@@ -59,3 +59,27 @@ def test_extract_lots_from_text_dedup():
     text = "385 385 385"
     rows = pe.extract_lots_from_text(text)
     assert [r["lot"] for r in rows] == ["385"]
+
+
+# === ollama_vision.parse_lots (네트워크 없음) ===
+from app.services import ollama_vision as ov
+
+
+def test_ov_parse_lots_strips_fence_and_normalizes():
+    raw = '```json\n[{"location":"상교리","lot":"산 31"},{"location":"상교리","lot":"384-18"}]\n```'
+    assert ov.parse_lots(raw) == [
+        {"location": "상교리", "lot": "산31"},
+        {"location": "상교리", "lot": "384-18"},
+    ]
+
+
+def test_ov_parse_lots_dedup_and_skip_blank():
+    raw = '[{"lot":"385"},{"lot":"385"},{"lot":""},{"location":"리","lot":"452"}]'
+    assert ov.parse_lots(raw) == [
+        {"location": "", "lot": "385"},
+        {"location": "리", "lot": "452"},
+    ]
+
+
+def test_ov_parse_lots_garbage_returns_empty():
+    assert ov.parse_lots("죄송하지만 추출할 수 없습니다") == []

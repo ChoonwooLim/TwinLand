@@ -13,9 +13,10 @@ pydantic-settings==2.7.1
 email-validator==2.2.0
 jinja2==3.1.4
 
-# 필지 자동 입력 — 엑셀 파싱 + 테스트
+# 필지 자동 입력 — 엑셀 파싱 + 테스트 + 비전 이미지 다운스케일
 openpyxl==3.1.5
 pytest==8.3.4
+Pillow==11.0.0
 
 # GIS — 산림청 SHP 적재·교차연산용 (PostGIS 없이 shapely 로 Python 측 계산)
 shapely==2.0.6
