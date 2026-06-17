@@ -1,6 +1,8 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+import os
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from ..services.openclaw_ws import stream_chat, OpenClawError
+from ..services import parcel_extractor as pe
 from ..core.config import get_settings
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
@@ -29,3 +31,38 @@ async def ws_chat(ws: WebSocket):
                 await ws.send_json({"type": "error", "error": str(e), "fallback": True})
     except WebSocketDisconnect:
         return
+
+
+MAX_UPLOAD = 10 * 1024 * 1024  # 10MB
+_TABULAR = {".csv", ".xlsx", ".xlsm"}
+_IMAGE = {".png", ".jpg", ".jpeg", ".webp"}
+
+
+@router.post("/extract-parcels")
+async def extract_parcels(file: UploadFile = File(...)):
+    data = await file.read()
+    if len(data) > MAX_UPLOAD:
+        raise HTTPException(status_code=413, detail="파일이 너무 큼 (최대 10MB)")
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    warnings: list[str] = []
+
+    try:
+        if ext in _TABULAR:
+            rows = pe.extract_tabular(data, ext.lstrip("."))
+            return {"prefix": None, "parcels": rows, "source": "tabular", "warnings": warnings}
+
+        if ext == ".pdf":
+            rows, scanned = pe.extract_text_pdf(data)
+            if scanned:
+                # Phase 2 에서 비전 변환; 그 전까지는 안내
+                return {"prefix": None, "parcels": [], "source": "pdf",
+                        "warnings": ["스캔 PDF 로 보임 — 이미지로 변환해 업로드하세요"]}
+            return {"prefix": None, "parcels": rows, "source": "pdf", "warnings": warnings}
+
+        if ext in _IMAGE:
+            # Phase 2 에서 구현 (Task 7). 그 전까지는 501.
+            raise HTTPException(status_code=501, detail="이미지 추출은 준비 중")
+
+        raise HTTPException(status_code=415, detail=f"지원하지 않는 파일 형식: {ext or '알수없음'}")
+    except pe.ExtractError as e:
+        return {"prefix": None, "parcels": [], "source": "error", "warnings": [str(e)]}
