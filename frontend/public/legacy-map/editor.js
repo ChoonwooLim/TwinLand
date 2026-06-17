@@ -54,7 +54,10 @@
         </td>
         <td data-label="면적(㎡)"><input type="number" class="ed-area-m2" value="${r.area_m2 ?? 0}" min="0" /></td>
         <td data-label="평"><input type="number" class="ed-area-pyeong" value="${r.area_pyeong ?? Math.round((r.area_m2 || 0) * 0.3025)}" min="0" /></td>
-        <td data-label="소유자"><input type="text" class="ed-owner" value="${escape(r.owner ?? '')}" placeholder="(VWorld 미제공)" /></td>
+        <td data-label="공시지가"><input type="number" class="ed-price" value="${r.price ?? ''}" min="0" placeholder="원/㎡" /></td>
+        <td data-label="용도지역"><input type="text" class="ed-usezone" value="${escape(r.usezone ?? '')}" placeholder="(VWorld)" /></td>
+        <td data-label="토지이용"><input type="text" class="ed-landuse" value="${escape(r.landuse ?? '')}" placeholder="(VWorld)" /></td>
+        <td data-label="소유자"><input type="text" class="ed-owner" value="${escape(r.owner ?? '')}" placeholder="(직접 입력)" /></td>
         <td data-label="비고"><input type="text" class="ed-memo" value="${escape(r.memo ?? '')}" /></td>
         <td data-label=""><button class="ed-delete" title="삭제">✕</button></td>
       `;
@@ -107,6 +110,10 @@
         tr.querySelector('.ed-area-m2').value = Math.round(result.area_m2);
         tr.querySelector('.ed-area-pyeong').value = Math.round(result.area_m2 * 0.3025);
       }
+      // NED 토지특성 적용 (공시지가·용도지역·토지이용)
+      if (result.price != null) tr.querySelector('.ed-price').value = Math.round(result.price);
+      if (result.usezone) tr.querySelector('.ed-usezone').value = result.usezone;
+      if (result.landuse) tr.querySelector('.ed-landuse').value = result.landuse;
       if (result.pnu) {
         // PNU 를 memo 에 기록 (소유자 확인용 외부 링크 메모)
         const memoInput = tr.querySelector('.ed-memo');
@@ -147,28 +154,60 @@
       domain: window.location.hostname || 'localhost',
     });
     const wfsRes = await fetch(wfsUrl);
-    if (!wfsRes.ok) throw new Error(`WFS HTTP ${wfsRes.status}`);
-    const wfsData = await wfsRes.json();
-    const features = wfsData?.response?.result?.featureCollection?.features || [];
-    if (features.length === 0) {
-      // 폴리곤 조회 실패 — PNU 만 반환
-      return { pnu, jimok: null, area_m2: null };
+    let jimok = '';
+    let area = 0;
+    if (wfsRes.ok) {
+      const wfsData = await wfsRes.json();
+      const features = wfsData?.response?.result?.featureCollection?.features || [];
+      if (features.length > 0) {
+        const props = features[0].properties || {};
+        jimok = props.jibun_jimok || props.jimokNm || props.jimok_nm || props.jimok || '';
+        if (/^\d{2}$/.test(jimok)) jimok = JIMOK_CODE_MAP[jimok] || jimok;
+        area = parseFloat(props.lndcgr_area || props.area || props.lndpcl_ar || 0);
+      }
     }
-    const props = features[0].properties || {};
 
-    // 지목 추출 — VWorld 응답 필드 다양성 대응
-    let jimok = props.jibun_jimok || props.jimokNm || props.jimok_nm || props.jimok || '';
-    // 코드(01~28) 면 매핑
-    if (/^\d{2}$/.test(jimok)) jimok = JIMOK_CODE_MAP[jimok] || jimok;
-    // 면적 추출
-    const area = parseFloat(props.lndcgr_area || props.area || props.lndpcl_ar || 0);
+    // 3) NED 토지특성 — 공시지가·용도지역·토지이용상황 (+ 지목/면적 보강)
+    const ned = await fetchNed(pnu, key);
 
     return {
       pnu,
-      jimok: jimok || null,
-      area_m2: area > 0 ? area : null,
-      raw: props,
+      jimok: jimok || ned.jimok || null,
+      area_m2: area > 0 ? area : (ned.area_m2 || null),
+      price: ned.price,
+      usezone: ned.usezone,
+      landuse: ned.landuse,
     };
+  }
+
+  // VWorld NED getLandCharacteristics → {price, usezone, landuse, jimok, area_m2}
+  async function fetchNed(pnu, key) {
+    const empty = { price: null, usezone: null, landuse: null, jimok: null, area_m2: null };
+    if (!pnu) return empty;
+    try {
+      const url = `/api/vworld/ned/getLandCharacteristics?` + new URLSearchParams({
+        key, pnu, format: 'json', domain: window.location.hostname || 'localhost',
+      });
+      const res = await fetch(url);
+      if (!res.ok) return empty;
+      const data = await res.json();
+      const root = data?.landCharacteristicss || data?.response;
+      let fields = root?.field || root?.fields?.field || [];
+      fields = Array.isArray(fields) ? fields : [fields];
+      if (!fields.length || !fields[0]) return empty;
+      fields.sort((a, b) => String(b.lastUpdtDt || '').localeCompare(String(a.lastUpdtDt || '')));
+      const p = fields[0];
+      return {
+        price: p.pblntfPclnd != null && p.pblntfPclnd !== '' ? Number(p.pblntfPclnd) : null,
+        usezone: p.prposArea1Nm || null,
+        landuse: p.ladUseSittnNm || null,
+        jimok: p.lndcgrCodeNm || null,
+        area_m2: p.lndpclAr ? parseFloat(p.lndpclAr) : null,
+      };
+    } catch (e) {
+      console.warn('[editor] NED 실패:', e.message);
+      return empty;
+    }
   }
 
   function collect() {
@@ -179,6 +218,9 @@
       category:     tr.querySelector('.ed-category').value,
       area_m2:      parseFloat(tr.querySelector('.ed-area-m2').value) || 0,
       area_pyeong:  parseFloat(tr.querySelector('.ed-area-pyeong').value) || 0,
+      price:        parseFloat(tr.querySelector('.ed-price').value) || null,
+      usezone:      tr.querySelector('.ed-usezone').value.trim(),
+      landuse:      tr.querySelector('.ed-landuse').value.trim(),
       owner:        tr.querySelector('.ed-owner').value.trim(),
       memo:         tr.querySelector('.ed-memo').value.trim(),
     })).filter(r => r.lot);
