@@ -183,3 +183,31 @@ Orbitron 배포 후 발생한 연쇄 이슈를 실서버 실측으로 해결:
 - 0aba731 style(landinfo): 80vw + 부모 모달 특이성 오버라이드
 
 ---
+
+## 2026-06-17
+
+### 작업 요약
+
+| 카테고리 | 작업 내용 | 상태 |
+|----------|----------|------|
+| feat | ✨ 새 프로젝트 통합 모달 + 파일(이미지/PDF/엑셀·CSV) 기반 필지 자동 입력 | 완료·배포 |
+| feat | 추출에 지목·면적·소유자 포함 + VWorld '전체 자동'에 공시지가·용도지역·토지이용 컬럼 | 완료·배포 |
+| feat | OpenClaw v3 클라이언트 정정 포팅(Ed25519/포트18790) — 기존 미작동 openclaw_ws.py 대체 | 완료 |
+| fix | 빈 프로젝트 폴백·504 타임아웃(비동기 job 폴링)·비전 타임아웃·모델 환각 | 완료·배포 |
+| spike | OpenClaw 게이트웨이 비전 한계 규명 → Ollama(gemma4:26b) 직호출로 결정 | 완료 |
+
+### 세부 내용
+
+- 설계·계획 문서화(brainstorming→writing-plans) 후 subagent-driven 실행. 21개 커밋, main 머지·배포.
+- 비전 경로: OpenClaw 게이트웨이는 원격 이미지 비전 미지원(image.describe=local 전용) 확인 → twinverse-ai LAN Ollama 직호출. gemma4:26b(신뢰성, ~2-4분) 기본, gemma3:12b는 환각으로 되돌림.
+- 504 회피: POST 202+job_id → 프론트 3초 폴링(window.TwinLandExtract). ollama_timeout 600s.
+- 소유자는 VWorld 미제공 → 문서 추출 + 수동 입력으로 정책 확정.
+- 미커밋: DATA/KakaoTalk_*.jpg (사용자 테스트 문서, 개인정보 가능성으로 커밋 제외).
+
+### 다음 세션 참고
+
+- **첫 작업**: 실제 금왕리 토지현황 사진으로 gemma4:26b 추출 정확도 재검증(미리보기 지번·면적 일치 여부). 마지막 "추출 안됨"은 gemma3 원인이었고 26b 복귀 후 미검증.
+- 속도(2-4분) UX 단축 방안 검토(전처리·크롭 등, 정확도 양보 없이).
+- 선재 이슈: 로컬 uvicorn 기동 실패(JooJooLand 잔재 FK downloadlog→dataroomdoc). 프로덕션 healthy. 무관.
+
+---

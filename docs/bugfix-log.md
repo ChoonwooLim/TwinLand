@@ -27,3 +27,7 @@
 | 2026-05-30 | 3D 위치검색에서 '맨하탄' 등 외국 지명이 엉뚱한 국내 좌표로 이동 | VWorld getcoord 가 주소뿐 아니라 건물명(structure.detail)에도 매칭 — '맨하탄'이 경산 동명 건물로 잡혀 Ion/OSM 폴백을 가로챔 | 질의어 토큰이 정제주소(refined.text)에 실제 등장할 때만 VWorld 결과 신뢰(vworldAddressMatches) | frontend/public/legacy-map/cesium-app.js |
 | 2026-05-30 | 3D 클릭(가상건물·건축물정보) 좌표가 수백m~km 어긋남 | World Terrain+틸트 뷰에서 scene.pickPosition 실패→pickEllipsoid 폴백이 해수면 타원체와 교차 | camera.getPickRay + scene.globe.pick(지형 표면 교차)로 교체, 가상건물은 지형고 기준 압출 | cesium-app.js, virtual-building.js |
 | 2026-05-30 | 도로 오버레이가 화면의 '도' 지번 다수 누락(인접 2건만) | 대상 41필지+300m 버퍼 내 '인접(≤15m)'만 표시하는 설계 한계 | 인접 필터 제거 + 조회 범위를 현재 지도 화면(view bounds)으로 변경, 패닝 시 재조회 | frontend/public/legacy-map/app.js |
+| 2026-06-17 | '+ 새 프로젝트'(빈)가 기본 41필지로 표시됨 | loadStoredParcels 가 빈 배열을 '저장값 없음'으로 보고 DEFAULT_PARCELS 폴백 | 키가 있으면 빈 배열이라도 그대로 사용(키 부재일 때만 기본값) | frontend/public/legacy-map/parcels.js |
+| 2026-06-17 | 이미지 업로드 추출이 HTTP 504(게이트웨이 타임아웃) | 비전(~1-3분)이 Cloudflare/Orbitron 프록시 타임아웃 초과 | POST 즉시 202+job_id → 프론트 3초 폴링(window.TwinLandExtract) 비동기화 | backend/app/routers/ai.py, frontend/public/legacy-map/{newproject,editor}.js |
+| 2026-06-17 | 이미지 비전 '호출 실패'(빈 에러) | 공유 3090 혼잡으로 26b 비전이 느려(작은 이미지도 80s) read timeout(300s) 초과 | ollama_timeout 300→600s, httpx Timeout 명시, 폴링 한도 600s | backend/app/core/config.py, services/ollama_vision.py |
+| 2026-06-17 | 모델 교체(gemma3:12b) 후 '느리고 추출 안됨' | gemma3:12b 가 실제 문서에서 지번/숫자 환각·장황 출력 | 신뢰성 우선으로 기본 모델 gemma4:26b 복귀(속도 우선 시 env override) | backend/app/core/config.py |

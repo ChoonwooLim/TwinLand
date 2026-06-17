@@ -49,3 +49,6 @@
 | 2026-06-17 | 백엔드 추출 엔드포인트 `POST /api/ai/extract-parcels` — CSV/XLSX(openpyxl)·텍스트PDF(pypdf 정규식)·이미지(Ollama 비전) 분기, 동/리·지번만 반환 | 백엔드/API | backend/app/routers/ai.py, services/parcel_extractor.py |
 | 2026-06-17 | 이미지 스캔 비전 = twinverse-ai LAN Ollama(gemma4:26b) 직호출(다운스케일 Pillow). OpenClaw 게이트웨이는 원격 비전 미지원이라 우회 | AI/GIS | backend/app/services/ollama_vision.py |
 | 2026-06-17 | OpenClaw v3 클라이언트 정정 포팅(Ed25519 핸드셰이크, 포트 18790) — 기존 미작동 openclaw_ws.py(jsonrpc) 대체, 텍스트 추론·device 페어링 | 인프라/AI | backend/app/services/openclaw_v3.py |
+| 2026-06-17 | ✨ 새 프로젝트 통합 모달 — 헤더 버튼 → 이름+파일 드래그·업로드 → 추출 미리보기 → 빈/채움 생성·전환 | 리포트/UX | legacy-map/newproject.js, projects.js, index.html, styles.css |
+| 2026-06-17 | 추출 확장 — 지번뿐 아니라 문서의 지목·면적·소유자도 함께 추출(비전 프롬프트·tabular 컬럼 매핑·면적 파서) | 리포트/AI | backend/app/services/{ollama_vision,parcel_extractor}.py, legacy-map/{newproject,editor}.js |
+| 2026-06-17 | VWorld '🔍 전체 자동' 확장 — 공시지가·용도지역·토지이용 전용 컬럼 + NED getLandCharacteristics 연동 | GIS/리포트 | frontend/public/legacy-map/editor.js, index.html |
