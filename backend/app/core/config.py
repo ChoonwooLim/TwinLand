@@ -57,9 +57,10 @@ class Settings(BaseSettings):
     # OpenClaw 게이트웨이는 원격 비전 미지원(image.describe=local 전용)이라
     # twinverse-ai LAN Ollama(RTX 3090)를 직접 호출. API 키 없음·과금 0원.
     ollama_url: str = "http://192.168.219.117:11434"
-    # gemma3:12b ≈ 40s (gemma4:26b 188s 대비 ~5배 빠름). 인쇄된 표 문서에 적합.
-    # 밀집 지번도 스캔은 26b 가 더 정확 — 정확도 우선이면 OLLAMA_VISION_MODEL=gemma4:26b 로 override.
-    ollama_vision_model: str = "gemma3:12b"
+    # gemma4:26b: 느리지만(~2-4분) 신뢰성 있게 추출. gemma3:12b 는 빠르나(~40s)
+    # 실제 문서에서 지번/숫자를 환각하는 경우가 있어 기본은 26b 로 둔다.
+    # (속도 우선·간단한 표면 OLLAMA_VISION_MODEL=gemma3:12b 로 override 가능)
+    ollama_vision_model: str = "gemma4:26b"
     # 공유 3090 혼잡 시 비전이 느려질 수 있어 넉넉히.
     ollama_timeout: float = 600.0
     # 비전 전송 전 이미지 다운스케일 한 변 최대 픽셀(속도/정확도 균형).
