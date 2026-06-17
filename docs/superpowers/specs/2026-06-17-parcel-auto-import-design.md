@@ -149,7 +149,20 @@
 | Anthropic provider 비활성 | `infra-docs/ai-shared-registry.md` (2026-04-24): "Anthropic API provider 비활성화/키 제거, 기본 모델 `openai-codex/gpt-5.5` 전환" |
 | 로컬 비전 대안 없음 | twinverse-ai Ollama 보유 = `qwen2.5:14b`(텍스트 전용) |
 
-**결정(사용자 승인):** 비전 비의존 경로(Phase 1: CSV/XLSX/텍스트PDF, Phase 3: 새 프로젝트
-+VWorld 자동채우기)를 먼저 구현. 이미지/스캔PDF 경로(Task 6~8)는 게이트웨이 외부 노출
-+인증+비전 가능 모델이 정리될 때까지 보류. 엔드포인트는 이미지에 501, 스캔PDF 에 안내
-warning 을 반환하고, editor 파일 input `accept` 에서 `image/*` 제외.
+**1차 결정:** 비전 비의존 경로(Phase 1: CSV/XLSX/텍스트PDF, Phase 3: 새 프로젝트
++VWorld 자동채우기) 먼저 구현.
+
+### 부록 2: 비전 경로 최종 결정 — Ollama 직호출 (2026-06-17, 동일 세션)
+
+사용자가 "Orbi(claude-cli/opus4.8) 정상 동작" 정보를 줘 비전 경로를 재조사한 결과:
+
+| 단계 | 발견 |
+|---|---|
+| 포트 | LAN 도달 포트는 **18790** (18789 는 loopback 전용). |
+| 프로토콜 | OpenClaw **v3** 프레임(`type:req/res/event`) + `connect.challenge`→Ed25519 서명. 기존 `openclaw_ws.py`(jsonrpc)는 미작동이었음 → `openclaw_v3.py` 로 정정 포팅(텍스트 추론 OK, device 페어링 완료). |
+| 비전 한계 | OpenClaw 게이트웨이 transport 에 **이미지 입력 경로 없음** — `image.describe`는 `local` 전용(원격 백엔드 불가), `chat.send`/`model.run`은 텍스트만, `agents.files.set`는 설정파일 allowlist 전용. |
+| 채택안 | **Ollama 직호출** (twinverse-ai RTX 3090, `gemma4:26b` 멀티모달, LAN·무료·키 없음 → 규칙 2.1 취지 부합). 백엔드 → `/api/chat` + 다운스케일(Pillow 1568px) base64 이미지. |
+| 검증 | `DATA/전체지번.png` → **41 필지 추출** (≈190s). 소수 OCR 오차(상교리→상고리, 산29→39)는 VWorld 자동조회 + 사용자 검토로 보정(설계 전제). |
+
+**최종 구현:** `app/services/ollama_vision.py`(다운스케일+호출+파싱), `/api/ai/extract-parcels`
+의 image/스캔PDF 경로를 Ollama 비전으로 배선(도달 불가 시 502). editor `accept`에 `image/*` 포함.

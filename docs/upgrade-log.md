@@ -45,3 +45,7 @@
 | 2026-05-30 | 3D 위치 검색 — 좌표/주소/도시명 4단계 지오코딩(parseLatLng→VWorld→Cesium Ion→OSM) + 위경도 직접입력 셀 | 지도/3D | legacy-map/cesium-app.js, index.html |
 | 2026-05-30 | VWorld GIS 3D 건물(LT_C_SPBD 압출) 토글 + 건물 클릭 시 건물·필지·토지특성(공시지가/지목) 통합 팝업 + 재사용 MapPopup | 지도/3D/리포트 | legacy-map/vworld-buildings.js, map-popup.js, index.html |
 | 2026-05-30 | 가상건물 시뮬레이션 — 폴리곤 그려 층수·층고·투명도·건물명 설정→입체 압출(지형 위 배치)·localStorage 저장 | 지도/시뮬 | legacy-map/virtual-building.js, index.html |
+| 2026-06-17 | 빈 프로젝트 생성('+ 새 프로젝트') + 파일에서 지번 자동 추출('📄 파일에서 가져오기') — 이미지/PDF/엑셀·CSV 업로드 → 동/리·지번 행 채움, 지목·면적은 기존 VWorld 자동조회로 보정 | 리포트/입력 | legacy-map/projects.js, editor.js, index.html |
+| 2026-06-17 | 백엔드 추출 엔드포인트 `POST /api/ai/extract-parcels` — CSV/XLSX(openpyxl)·텍스트PDF(pypdf 정규식)·이미지(Ollama 비전) 분기, 동/리·지번만 반환 | 백엔드/API | backend/app/routers/ai.py, services/parcel_extractor.py |
+| 2026-06-17 | 이미지 스캔 비전 = twinverse-ai LAN Ollama(gemma4:26b) 직호출(다운스케일 Pillow). OpenClaw 게이트웨이는 원격 비전 미지원이라 우회 | AI/GIS | backend/app/services/ollama_vision.py |
+| 2026-06-17 | OpenClaw v3 클라이언트 정정 포팅(Ed25519 핸드셰이크, 포트 18790) — 기존 미작동 openclaw_ws.py(jsonrpc) 대체, 텍스트 추론·device 페어링 | 인프라/AI | backend/app/services/openclaw_v3.py |
