@@ -60,10 +60,11 @@ window.DEFAULT_PARCELS = [
 (function loadStoredParcels() {
   try {
     const raw = localStorage.getItem(PARCELS_STORAGE_KEY);
-    const arr = raw ? JSON.parse(raw) : null;
-    if (Array.isArray(arr) && arr.length > 0) {
+    // 키가 있으면 빈 배열이라도 그대로 사용(의도적 빈 프로젝트). 키 자체가 없을 때만 기본 41필지.
+    const arr = raw != null ? JSON.parse(raw) : null;
+    if (Array.isArray(arr)) {
       window.PARCELS = arr;
-      window._USING_CUSTOM_PARCELS = true;
+      window._USING_CUSTOM_PARCELS = arr.length > 0;
     } else {
       window.PARCELS = window.DEFAULT_PARCELS;
     }
