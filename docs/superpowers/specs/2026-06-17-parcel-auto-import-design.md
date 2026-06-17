@@ -137,3 +137,19 @@
 - 좌표/폴리곤 추출 — VWorld WFS 가 담당, 추출 범위 외.
 - 다국어 OCR, 손글씨 — 인쇄 지적도/대장 한정.
 - 클라이언트측 xlsx 파싱(SheetJS 번들) — 백엔드 단일화로 제외.
+
+## 부록: Phase 0 스파이크 결과 (2026-06-17)
+
+`backend/scripts/spike_openclaw_vision.py` 로 `DATA/전체지번.png` 를 OpenClaw LAN
+게이트웨이(`ws://192.168.219.117:18789`)에 전송 시도 → **비전 경로 현재 불가** 판정.
+
+| 발견 | 근거 |
+|---|---|
+| 게이트웨이 18789 가 twinverse-ai `127.0.0.1` 에만 바인딩 | `ss -tlnp`: `127.0.0.1:18789`, `[::1]:18789` (0.0.0.0 아님). 외부(개발머신/Orbitron)에서 `ConnectionRefused` |
+| Anthropic provider 비활성 | `infra-docs/ai-shared-registry.md` (2026-04-24): "Anthropic API provider 비활성화/키 제거, 기본 모델 `openai-codex/gpt-5.5` 전환" |
+| 로컬 비전 대안 없음 | twinverse-ai Ollama 보유 = `qwen2.5:14b`(텍스트 전용) |
+
+**결정(사용자 승인):** 비전 비의존 경로(Phase 1: CSV/XLSX/텍스트PDF, Phase 3: 새 프로젝트
++VWorld 자동채우기)를 먼저 구현. 이미지/스캔PDF 경로(Task 6~8)는 게이트웨이 외부 노출
++인증+비전 가능 모델이 정리될 때까지 보류. 엔드포인트는 이미지에 501, 스캔PDF 에 안내
+warning 을 반환하고, editor 파일 input `accept` 에서 `image/*` 제외.
