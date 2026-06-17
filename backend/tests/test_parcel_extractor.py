@@ -47,3 +47,15 @@ def test_extract_tabular_no_lot_header_raises():
         assert False, "should raise"
     except pe.ExtractError:
         pass
+
+def test_extract_lots_from_text_finds_jibun():
+    text = "1번 상교리 384-18 임야\n2번 385 전\n비고: 산31-1 포함"
+    rows = pe.extract_lots_from_text(text)
+    assert {"location": "", "lot": "384-18"} in rows
+    assert {"location": "", "lot": "385"} in rows
+    assert {"location": "", "lot": "산31-1"} in rows
+
+def test_extract_lots_from_text_dedup():
+    text = "385 385 385"
+    rows = pe.extract_lots_from_text(text)
+    assert [r["lot"] for r in rows] == ["385"]
