@@ -279,14 +279,9 @@
       extractBtn.disabled = true;
       extractBtn.textContent = '⏳ 추출 중... (이미지는 1~3분)';
       try {
-        const fd = new FormData();
-        fd.append('file', file);
-        const res = await fetch('/api/ai/extract-parcels', { method: 'POST', body: fd });
-        if (!res.ok) {
-          const detail = await res.json().catch(() => ({}));
-          throw new Error(detail.detail || `HTTP ${res.status}`);
-        }
-        const data = await res.json();
+        const data = await window.TwinLandExtract(file, (sec) => {
+          extractBtn.textContent = `⏳ AI 분석 중… ${sec}초`;
+        });
         const extracted = (data.parcels || []).map((p, i) => ({
           no: i + 1,
           location: p.location || '',

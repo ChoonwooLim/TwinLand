@@ -2,6 +2,43 @@
 // 이름 + (선택) 이미지/PDF/엑셀/CSV 업로드 → 동/리·지번 자동 추출 → 프로젝트 생성·전환.
 // 지목·면적은 생성 후 편집기의 "🔍 전체 자동"(VWorld)으로 채운다.
 
+// 공용 추출 업로더 — 이미지/스캔PDF 는 백엔드가 202+job_id 를 주므로 폴링한다
+// (비전 ~1-3분이 프록시 타임아웃을 넘기지 않도록). editor.js 도 이 함수를 쓴다.
+// onStatus(elapsedSeconds, phase) 로 진행상황 콜백. 반환: {prefix, parcels, source, warnings}
+window.TwinLandExtract = async function (file, onStatus) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await fetch('/api/ai/extract-parcels', { method: 'POST', body: fd });
+  if (!res.ok && res.status !== 202) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error(d.detail || `HTTP ${res.status}`);
+  }
+  let data = await res.json();
+  if (data && data.job_id) {
+    const started = Date.now();
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const elapsed = Math.round((Date.now() - started) / 1000);
+      if (onStatus) onStatus(elapsed, 'polling');
+      let pd;
+      try {
+        const pr = await fetch(`/api/ai/extract-parcels/jobs/${data.job_id}`);
+        if (!pr.ok) throw new Error(`상태 조회 HTTP ${pr.status}`);
+        pd = await pr.json();
+      } catch (e) {
+        // 일시적 네트워크 흔들림은 계속 폴링(타임아웃 한도 내)
+        if (elapsed > 360) throw e;
+        continue;
+      }
+      if (pd.status === 'done') { data = pd; break; }
+      if (pd.status === 'error') throw new Error(pd.detail || 'AI 추출 실패');
+      if (elapsed > 360) throw new Error('시간 초과 (6분) — 잠시 후 다시 시도하세요');
+    }
+  }
+  return data;
+};
+
 (function () {
   const modal = document.getElementById('newproject-modal');
   if (!modal) return;
@@ -70,14 +107,9 @@
     const isImage = /^image\//.test(file.type) || /\.(png|jpe?g|webp)$/i.test(file.name);
     setStatus('loading', isImage ? `⏳ 이미지 분석 중… (AI 비전, 1~3분) — ${file.name}` : `⏳ 분석 중… — ${file.name}`);
     try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const res = await fetch('/api/ai/extract-parcels', { method: 'POST', body: fd });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.detail || `HTTP ${res.status}`);
-      }
-      const data = await res.json();
+      const data = await window.TwinLandExtract(file, (sec) => {
+        setStatus('loading', `⏳ AI 비전 분석 중… ${sec}초 경과 (보통 1~3분) — ${file.name}`);
+      });
       const rows = (data.parcels || []).filter(p => p && p.lot);
       if (data.prefix && !prefixInput.value.trim()) prefixInput.value = data.prefix;
       if (rows.length === 0) {
