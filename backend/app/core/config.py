@@ -58,7 +58,8 @@ class Settings(BaseSettings):
     # twinverse-ai LAN Ollama(RTX 3090)를 직접 호출. API 키 없음·과금 0원.
     ollama_url: str = "http://192.168.219.117:11434"
     ollama_vision_model: str = "gemma4:26b"
-    ollama_timeout: float = 300.0
+    # 공유 3090 혼잡 시 26b 비전이 느림(작은 이미지도 ~80s). 넉넉히.
+    ollama_timeout: float = 600.0
     # 비전 전송 전 이미지 다운스케일 한 변 최대 픽셀(속도/정확도 균형).
     vision_max_side: int = 1568
 

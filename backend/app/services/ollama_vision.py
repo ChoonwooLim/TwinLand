@@ -85,11 +85,16 @@ async def extract_lots_from_image(data: bytes) -> list[dict]:
         "stream": False,
         "options": {"temperature": 0},
     }
+    timeout = httpx.Timeout(connect=10.0, read=settings.ollama_timeout, write=60.0, pool=settings.ollama_timeout)
     try:
-        async with httpx.AsyncClient(timeout=settings.ollama_timeout) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             r = await client.post(f"{settings.ollama_url}/api/chat", json=payload)
             r.raise_for_status()
             content = r.json().get("message", {}).get("content", "")
+    except httpx.TimeoutException as e:
+        raise OllamaVisionError(
+            f"Ollama 응답 시간 초과({settings.ollama_timeout:.0f}s) — GPU 혼잡일 수 있어요. 잠시 후 다시 시도하세요"
+        ) from e
     except (httpx.HTTPError, OSError) as e:
-        raise OllamaVisionError(f"Ollama 비전 호출 실패: {e}") from e
-    return parse_lots(content)
+        raise OllamaVisionError(f"Ollama 호출 실패: {e}") from e
+    return parse_parcels(content)

@@ -28,12 +28,12 @@ window.TwinLandExtract = async function (file, onStatus) {
         pd = await pr.json();
       } catch (e) {
         // 일시적 네트워크 흔들림은 계속 폴링(타임아웃 한도 내)
-        if (elapsed > 360) throw e;
+        if (elapsed > 600) throw e;
         continue;
       }
       if (pd.status === 'done') { data = pd; break; }
       if (pd.status === 'error') throw new Error(pd.detail || 'AI 추출 실패');
-      if (elapsed > 360) throw new Error('시간 초과 (6분) — 잠시 후 다시 시도하세요');
+      if (elapsed > 600) throw new Error('시간 초과 (10분) — GPU 혼잡일 수 있어요. 잠시 후 다시 시도하세요');
     }
   }
   return data;
